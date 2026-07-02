@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audit Intern Avvero, Prototip v1</title>
+  <title>Avvero | GROW-UP!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -1576,6 +1576,266 @@
 
       .question {
         font-size: 14px;
+      }
+    }
+
+
+    /* Mobile UI dedicat, iPhone optimizat. Desktop nu este afectat. */
+    @media (max-width: 768px) {
+      body {
+        padding-top: calc(54px + env(safe-area-inset-top)) !important;
+        font-size: 14px;
+      }
+
+      .mobile-topbar {
+        height: calc(54px + env(safe-area-inset-top)) !important;
+        padding: calc(7px + env(safe-area-inset-top)) 12px 7px !important;
+        gap: 10px !important;
+      }
+
+      .mobile-menu-btn {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 13px !important;
+        font-size: 21px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 14px !important;
+        letter-spacing: -.35px !important;
+      }
+
+      .mobile-title span {
+        font-size: 11px !important;
+        margin-top: 2px !important;
+      }
+
+      main {
+        padding: 10px !important;
+        padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar {
+        gap: 8px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .topbar h2 {
+        font-size: 25px !important;
+        line-height: 1 !important;
+        letter-spacing: -.8px;
+      }
+
+      .topbar p {
+        font-size: 13px !important;
+        line-height: 1.28 !important;
+        margin-top: 6px !important;
+      }
+
+      #audit > .topbar .actions {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        z-index: 2200;
+        display: grid !important;
+        grid-template-columns: .85fr 1.15fr;
+        gap: 8px;
+        padding: 8px;
+        border: 1px solid rgba(228,231,236,.95);
+        border-radius: 20px;
+        background: rgba(244,247,251,.94);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 18px 42px rgba(16,24,40,.18);
+      }
+
+      #audit > .topbar .actions .btn {
+        margin: 0 !important;
+        min-height: 46px !important;
+        padding: 10px 12px !important;
+        border-radius: 15px !important;
+        font-size: 14px !important;
+      }
+
+      .grid {
+        gap: 10px !important;
+      }
+
+      .card {
+        padding: 14px !important;
+        border-radius: 18px !important;
+        box-shadow: 0 8px 24px rgba(16,24,40,.055) !important;
+      }
+
+      .section-title {
+        margin-bottom: 8px !important;
+      }
+
+      .section-title h3 {
+        font-size: 18px !important;
+        line-height: 1.15 !important;
+      }
+
+      .section-title p {
+        font-size: 12px !important;
+        line-height: 1.28 !important;
+      }
+
+      .form-grid {
+        gap: 9px !important;
+      }
+
+      label {
+        font-size: 12px !important;
+        margin-bottom: 5px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px !important;
+        min-height: 44px !important;
+        padding: 10px 12px !important;
+        border-radius: 14px !important;
+      }
+
+      textarea {
+        min-height: 82px !important;
+      }
+
+      .tabs {
+        margin-bottom: 10px !important;
+        gap: 6px !important;
+      }
+
+      .tab {
+        min-height: 38px !important;
+        padding: 9px 12px !important;
+        font-size: 13px !important;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        padding: 12px !important;
+        border-radius: 16px !important;
+        margin-bottom: 10px !important;
+      }
+
+      .indicator-admin {
+        margin-top: 0 !important;
+      }
+
+      .checks {
+        gap: 9px !important;
+      }
+
+      .check-row {
+        padding: 14px 12px 14px 38px !important;
+        border-radius: 16px !important;
+      }
+
+      .question-tools {
+        top: 14px !important;
+        left: 8px !important;
+      }
+
+      .drag-handle {
+        width: 24px !important;
+        height: 24px !important;
+      }
+
+      .check-top {
+        gap: 8px !important;
+      }
+
+      .question {
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+        padding-right: 38px !important;
+      }
+
+      .hint {
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+        margin-top: 4px !important;
+      }
+
+      .remove-question {
+        width: 32px !important;
+        height: 32px !important;
+        top: 12px !important;
+        right: 10px !important;
+      }
+
+      .check-row select {
+        width: 100% !important;
+      }
+
+      .check-row .obs {
+        margin-top: 8px !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 78px !important;
+      }
+
+      .field-remove {
+        width: 32px !important;
+        height: 32px !important;
+        top: 24px !important;
+      }
+
+      .metric strong {
+        font-size: 22px !important;
+      }
+
+      .pill {
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+      }
+
+      #employeeSuggestions {
+        top: 68px !important;
+        max-height: 220px !important;
+      }
+
+      .confirm-card {
+        padding: 20px 16px !important;
+      }
+
+      .confirm-card h3 {
+        font-size: 18px !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      main {
+        padding: 9px !important;
+        padding-bottom: calc(90px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .card {
+        padding: 12px !important;
+      }
+
+      .topbar h2 {
+        font-size: 24px !important;
+      }
+
+      .topbar p {
+        font-size: 12.5px !important;
+      }
+
+      .section-title h3 {
+        font-size: 17px !important;
+      }
+
+      #audit > .topbar .actions {
+        left: 8px;
+        right: 8px;
+        bottom: calc(8px + env(safe-area-inset-bottom));
       }
     }
 
