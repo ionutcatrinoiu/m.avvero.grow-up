@@ -3830,6 +3830,72 @@
       }
     }
 
+
+    /* Fix final: data auditului centrată pe mobil */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      #auditDate,
+      input[type="date"] {
+        text-align: center !important;
+        text-align-last: center !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+
+      #auditDate::-webkit-date-and-time-value,
+      input[type="date"]::-webkit-date-and-time-value {
+        text-align: center !important;
+        margin: 0 auto !important;
+        width: 100% !important;
+      }
+
+      #auditDate::-webkit-calendar-picker-indicator,
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        position: absolute;
+        right: 18px;
+      }
+
+      .mobile-sticky-tabs {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: calc(72px + env(safe-area-inset-top)) !important;
+        z-index: 9998 !important;
+        display: none !important;
+        gap: 8px !important;
+        overflow-x: auto !important;
+        padding: 10px 12px !important;
+        background: rgba(244,247,251,.98) !important;
+        border-bottom: 1px solid rgba(228,231,236,.95) !important;
+        box-shadow: 0 8px 20px rgba(16,24,40,.08) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+      }
+
+      .mobile-sticky-tabs.visible {
+        display: flex !important;
+      }
+
+      .mobile-sticky-tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .mobile-sticky-tabs .tab {
+        flex: 0 0 auto !important;
+        min-height: 42px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        white-space: nowrap !important;
+        border-radius: 999px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
@@ -5123,14 +5189,7 @@ function saveChaptersConfig() {
       }
     }
 
-
-
-    function getElementPageTop(element) {
-      const rect = element.getBoundingClientRect();
-      return rect.top + window.scrollY;
-    }
-
-    function refreshMobileStickyTabs() {
+    function syncMobileStickyTabs() {
       const sticky = document.getElementById('mobileStickyTabs');
       const tabs = document.getElementById('tabs');
       const auditPage = document.getElementById('audit');
@@ -5141,39 +5200,41 @@ function saveChaptersConfig() {
         return;
       }
 
-      sticky.innerHTML = [...tabs.children].map(button => {
-        const title = button.innerText;
+      sticky.innerHTML = [...tabs.children].map((button, index) => {
         const active = button.classList.contains('active') ? ' active' : '';
-        return `<button type="button" class="tab${active}" data-title="${title.replaceAll('"', '&quot;')}">${title}</button>`;
+        return `<button type="button" class="tab${active}" data-index="${index}">${button.innerText}</button>`;
       }).join('');
 
       sticky.querySelectorAll('button').forEach(button => {
         button.addEventListener('click', () => {
-          const original = [...tabs.children].find(item => item.innerText === button.dataset.title);
+          const index = Number(button.dataset.index);
+          const original = tabs.children[index];
           if (original) original.click();
-          setTimeout(refreshMobileStickyTabs, 40);
+          setTimeout(syncMobileStickyTabs, 50);
         });
       });
 
-      const headerHeight = 72;
-      const tabsTop = getElementPageTop(tabs);
-      const sectionsBottom = getElementPageTop(sections) + sections.offsetHeight;
-      const y = window.scrollY + headerHeight;
+      const header = document.getElementById('mobileTopbar');
+      const headerHeight = header ? header.getBoundingClientRect().height : 72;
+      const tabsRect = tabs.getBoundingClientRect();
+      const sectionsRect = sections.getBoundingClientRect();
 
-      const shouldShow = y >= tabsTop && window.scrollY < sectionsBottom - 180;
+      const shouldShow = tabsRect.top <= headerHeight && sectionsRect.bottom > headerHeight + 100;
       sticky.classList.toggle('visible', shouldShow);
     }
 
     function setupRealMobileStickyTabs() {
-      window.addEventListener('scroll', refreshMobileStickyTabs, { passive: true });
-      window.addEventListener('resize', refreshMobileStickyTabs);
+      window.addEventListener('scroll', syncMobileStickyTabs, { passive: true });
+      window.addEventListener('resize', syncMobileStickyTabs);
       document.addEventListener('click', event => {
         if (event.target.closest('.tab') || event.target.closest('nav button')) {
-          setTimeout(refreshMobileStickyTabs, 100);
+          setTimeout(syncMobileStickyTabs, 80);
         }
       });
-      setTimeout(refreshMobileStickyTabs, 300);
+      setTimeout(syncMobileStickyTabs, 300);
     }
+
+
     function toggleMobileMenu(open) {
       const next = typeof open === 'boolean' ? open : !document.body.classList.contains('mobile-menu-open');
       document.body.classList.toggle('mobile-menu-open', next);
