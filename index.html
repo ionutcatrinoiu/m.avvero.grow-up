@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Avvero | GROW-UP!</title>
+  <title>Audit Intern Avvero, Prototip v1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -3896,6 +3896,109 @@
       }
     }
 
+
+    /* Final mobil: card fix capitole + logo-uri mărite 30%. Desktop neatins. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      .mobile-sticky-tabs {
+        display: none !important;
+      }
+
+      .mobile-section-nav-card {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: calc(72px + env(safe-area-inset-top));
+        z-index: 9999;
+        display: none;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 12px;
+        background: rgba(255,255,255,.96);
+        border: 1px solid rgba(228,231,236,.95);
+        border-radius: 22px;
+        box-shadow: 0 14px 34px rgba(16,24,40,.14);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .mobile-section-nav-card::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mobile-section-nav-card.visible {
+        display: flex;
+      }
+
+      .mobile-section-nav-card .tab {
+        flex: 0 0 auto !important;
+        min-height: 44px !important;
+        padding: 10px 15px !important;
+        font-size: 14px !important;
+        border-radius: 999px !important;
+        white-space: nowrap !important;
+      }
+
+      body.mobile-section-nav-visible main {
+        scroll-padding-top: calc(148px + env(safe-area-inset-top));
+      }
+
+      .login-hero-logo {
+        width: 390px !important;
+      }
+
+      .login-card-logo {
+        width: 455px !important;
+        max-width: 100% !important;
+      }
+
+      aside .logo-wrap {
+        width: 169px !important;
+        height: 125px !important;
+      }
+
+      aside .avvero-logo {
+        width: 169px !important;
+        height: 125px !important;
+        transform: scale(1.45) !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .mobile-section-nav-card {
+        left: 10px;
+        right: 10px;
+        border-radius: 20px;
+        padding: 10px;
+      }
+
+      .mobile-section-nav-card .tab {
+        min-height: 42px !important;
+        font-size: 13px !important;
+        padding: 9px 14px !important;
+      }
+
+      .login-hero-logo {
+        width: 195px !important;
+      }
+
+      .login-card-logo {
+        width: 338px !important;
+      }
+
+      aside .logo-wrap {
+        width: 169px !important;
+        height: 125px !important;
+      }
+
+      aside .avvero-logo {
+        width: 169px !important;
+        height: 125px !important;
+        transform: scale(1.45) !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
@@ -3938,6 +4041,7 @@
   </div>
   <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu(false)"></div>
   <div id="mobileStickyTabs" class="mobile-sticky-tabs"></div>
+  <div id="mobileSectionNavCard" class="mobile-section-nav-card"></div>
 
   <div class="app">
     <aside>
@@ -5232,6 +5336,54 @@ function saveChaptersConfig() {
         }
       });
       setTimeout(syncMobileStickyTabs, 300);
+    }
+
+
+
+    function syncMobileSectionNavCard() {
+      const card = document.getElementById('mobileSectionNavCard');
+      const tabs = document.getElementById('tabs');
+      const auditPage = document.getElementById('audit');
+      const sections = document.getElementById('sections');
+
+      if (!card || !tabs || !auditPage || !sections || window.innerWidth > 980 || auditPage.classList.contains('hidden')) {
+        if (card) card.classList.remove('visible');
+        document.body.classList.remove('mobile-section-nav-visible');
+        return;
+      }
+
+      card.innerHTML = [...tabs.children].map((button, index) => {
+        const active = button.classList.contains('active') ? ' active' : '';
+        return `<button type="button" class="tab${active}" data-index="${index}">${button.innerText}</button>`;
+      }).join('');
+
+      card.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', () => {
+          const original = tabs.children[Number(button.dataset.index)];
+          if (original) original.click();
+          setTimeout(syncMobileSectionNavCard, 30);
+        });
+      });
+
+      const header = document.getElementById('mobileTopbar');
+      const headerHeight = header ? header.getBoundingClientRect().height : 72;
+      const tabsRect = tabs.getBoundingClientRect();
+      const sectionsRect = sections.getBoundingClientRect();
+
+      const shouldShow = tabsRect.bottom <= headerHeight && sectionsRect.bottom > headerHeight + 150;
+      card.classList.toggle('visible', shouldShow);
+      document.body.classList.toggle('mobile-section-nav-visible', shouldShow);
+    }
+
+    function setupMobileSectionNavCard() {
+      window.addEventListener('scroll', syncMobileSectionNavCard, { passive: true });
+      window.addEventListener('resize', syncMobileSectionNavCard);
+      document.addEventListener('click', event => {
+        if (event.target.closest('.tab') || event.target.closest('nav button')) {
+          setTimeout(syncMobileSectionNavCard, 80);
+        }
+      });
+      setTimeout(syncMobileSectionNavCard, 300);
     }
 
 
