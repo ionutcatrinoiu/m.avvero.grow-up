@@ -2877,6 +2877,219 @@
       }
     }
 
+
+    /* Mobile v5, ușor redus și taburi blocate sus. Desktop rămâne neatins. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      body {
+        padding-top: calc(82px + env(safe-area-inset-top)) !important;
+        font-size: 18px !important;
+      }
+
+      .mobile-topbar {
+        height: calc(82px + env(safe-area-inset-top)) !important;
+        padding: calc(16px + env(safe-area-inset-top)) 18px 16px !important;
+      }
+
+      .mobile-menu-btn {
+        width: 58px !important;
+        height: 58px !important;
+        min-width: 58px !important;
+        border-radius: 20px !important;
+        font-size: 28px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 22px !important;
+      }
+
+      .mobile-title span {
+        font-size: 16px !important;
+      }
+
+      main {
+        padding: 22px 16px calc(36px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar h2 {
+        font-size: 40px !important;
+      }
+
+      .topbar p {
+        font-size: 20px !important;
+      }
+
+      #audit > .topbar .actions .btn {
+        min-height: 66px !important;
+        font-size: 20px !important;
+        border-radius: 22px !important;
+      }
+
+      .grid {
+        gap: 24px !important;
+      }
+
+      .card {
+        padding: 28px 24px !important;
+        border-radius: 30px !important;
+      }
+
+      .section-title h3 {
+        font-size: 28px !important;
+      }
+
+      .section-title p {
+        font-size: 18px !important;
+      }
+
+      .form-grid {
+        gap: 22px !important;
+      }
+
+      label {
+        font-size: 18px !important;
+        margin-bottom: 11px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 20px !important;
+        min-height: 68px !important;
+        padding: 19px 20px !important;
+        border-radius: 24px !important;
+      }
+
+      textarea {
+        min-height: 145px !important;
+      }
+
+      .tabs {
+        position: sticky !important;
+        top: calc(82px + env(safe-area-inset-top)) !important;
+        z-index: 2100 !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 12px !important;
+        margin: -8px -24px 26px !important;
+        padding: 14px 24px !important;
+        background: rgba(244,247,251,.96) !important;
+        border-bottom: 1px solid rgba(228,231,236,.95) !important;
+        box-shadow: 0 10px 22px rgba(16,24,40,.06) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        scrollbar-width: none !important;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .tab {
+        flex: 0 0 auto !important;
+        min-height: 58px !important;
+        padding: 16px 22px !important;
+        font-size: 18px !important;
+        border-radius: 999px !important;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        padding: 24px !important;
+        border-radius: 28px !important;
+        gap: 20px !important;
+        margin-bottom: 24px !important;
+      }
+
+      .checks {
+        gap: 24px !important;
+      }
+
+      .check-row {
+        padding: 26px 24px !important;
+        border-radius: 28px !important;
+      }
+
+      .check-top {
+        gap: 20px !important;
+      }
+
+      .question {
+        font-size: 22px !important;
+        line-height: 1.35 !important;
+        padding-right: 52px !important;
+      }
+
+      .hint {
+        font-size: 16px !important;
+      }
+
+      .remove-question {
+        width: 44px !important;
+        height: 44px !important;
+        top: 24px !important;
+        right: 22px !important;
+      }
+
+      .check-row select {
+        min-height: 68px !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 155px !important;
+      }
+
+      .field-remove {
+        width: 44px !important;
+        height: 44px !important;
+        top: 44px !important;
+      }
+
+      .pill {
+        font-size: 16px !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .topbar h2 {
+        font-size: 36px !important;
+      }
+
+      .topbar p {
+        font-size: 19px !important;
+      }
+
+      .card {
+        padding: 26px 22px !important;
+      }
+
+      .section-title h3 {
+        font-size: 26px !important;
+      }
+
+      label {
+        font-size: 17px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 19px !important;
+        min-height: 66px !important;
+      }
+
+      .question {
+        font-size: 21px !important;
+      }
+
+      .tab {
+        font-size: 17px !important;
+        min-height: 54px !important;
+        padding: 15px 20px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
