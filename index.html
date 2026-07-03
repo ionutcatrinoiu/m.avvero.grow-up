@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Audit Intern Avvero, Prototip v1</title>
+  <title>Avvero | GROW-UP!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -3087,6 +3087,330 @@
         font-size: 17px !important;
         min-height: 54px !important;
         padding: 15px 20px !important;
+      }
+    }
+
+
+    /* Mobile v6, proporții mai apropiate de iOS și taburi sticky corectate. Desktop nu este afectat. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      body {
+        padding-top: calc(78px + env(safe-area-inset-top)) !important;
+        font-size: 17px !important;
+        line-height: 1.35 !important;
+        overflow-x: hidden !important;
+        -webkit-text-size-adjust: 100% !important;
+      }
+
+      .mobile-topbar {
+        height: calc(78px + env(safe-area-inset-top)) !important;
+        padding: calc(14px + env(safe-area-inset-top)) 18px 14px !important;
+        gap: 14px !important;
+        background: rgba(244,247,251,.96) !important;
+        box-shadow: 0 1px 0 rgba(228,231,236,.95) !important;
+      }
+
+      .mobile-menu-btn {
+        width: 52px !important;
+        height: 52px !important;
+        min-width: 52px !important;
+        border-radius: 18px !important;
+        font-size: 25px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 20px !important;
+        line-height: 1 !important;
+        letter-spacing: -.7px !important;
+      }
+
+      .mobile-title span {
+        font-size: 15px !important;
+        margin-top: 4px !important;
+      }
+
+      main {
+        padding: 18px 14px calc(30px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar {
+        gap: 16px !important;
+        margin-bottom: 20px !important;
+      }
+
+      .topbar h2 {
+        font-size: 34px !important;
+        line-height: 1.05 !important;
+        letter-spacing: -1px !important;
+      }
+
+      .topbar p {
+        font-size: 18px !important;
+        line-height: 1.42 !important;
+        margin-top: 8px !important;
+      }
+
+      #audit > .topbar .actions {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      #audit > .topbar .actions .btn {
+        min-height: 58px !important;
+        border-radius: 20px !important;
+        font-size: 17px !important;
+        padding: 14px 16px !important;
+      }
+
+      .grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+
+      .card {
+        padding: 22px 20px !important;
+        border-radius: 26px !important;
+        box-shadow: 0 12px 32px rgba(16,24,40,.075) !important;
+      }
+
+      .section-title {
+        margin-bottom: 18px !important;
+      }
+
+      .section-title h3 {
+        font-size: 24px !important;
+        line-height: 1.18 !important;
+      }
+
+      .section-title p {
+        font-size: 16px !important;
+        line-height: 1.42 !important;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+      }
+
+      label {
+        font-size: 16px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 9px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 18px !important;
+        min-height: 60px !important;
+        padding: 16px 17px !important;
+        border-radius: 20px !important;
+        line-height: 1.25 !important;
+      }
+
+      textarea {
+        min-height: 125px !important;
+      }
+
+      .tabs {
+        position: sticky !important;
+        top: calc(92px + env(safe-area-inset-top)) !important;
+        z-index: 2300 !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 10px !important;
+        margin: -4px -20px 22px !important;
+        padding: 12px 20px !important;
+        background: rgba(244,247,251,.98) !important;
+        border-top: 1px solid rgba(228,231,236,.75) !important;
+        border-bottom: 1px solid rgba(228,231,236,.95) !important;
+        box-shadow: 0 8px 20px rgba(16,24,40,.06) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        scrollbar-width: none !important;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .tab {
+        flex: 0 0 auto !important;
+        min-height: 50px !important;
+        padding: 13px 18px !important;
+        font-size: 16px !important;
+        border-radius: 999px !important;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        grid-template-columns: 1fr !important;
+        padding: 20px !important;
+        border-radius: 24px !important;
+        gap: 16px !important;
+        margin-bottom: 20px !important;
+      }
+
+      .checks {
+        gap: 20px !important;
+      }
+
+      .check-row {
+        padding: 22px 20px !important;
+        border-radius: 24px !important;
+        min-height: 0 !important;
+        cursor: default !important;
+      }
+
+      .question-tools {
+        display: none !important;
+      }
+
+      .check-top {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        padding-right: 0 !important;
+      }
+
+      .question {
+        font-size: 19px !important;
+        line-height: 1.35 !important;
+        padding-right: 46px !important;
+      }
+
+      .hint {
+        font-size: 14px !important;
+        line-height: 1.38 !important;
+        margin-top: 6px !important;
+      }
+
+      .remove-question {
+        width: 40px !important;
+        height: 40px !important;
+        top: 20px !important;
+        right: 20px !important;
+        transform: none !important;
+      }
+
+      .check-row select {
+        min-height: 60px !important;
+        width: 100% !important;
+      }
+
+      .check-row .obs {
+        margin-top: 18px !important;
+        padding-right: 0 !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 135px !important;
+      }
+
+      .field-box input {
+        padding-right: 60px !important;
+      }
+
+      .field-remove {
+        width: 40px !important;
+        height: 40px !important;
+        top: 38px !important;
+        right: 12px !important;
+      }
+
+      .pill {
+        padding: 8px 12px !important;
+        font-size: 15px !important;
+      }
+
+      aside {
+        width: min(76vw, 310px) !important;
+        padding: calc(22px + env(safe-area-inset-top)) 16px calc(22px + env(safe-area-inset-bottom)) !important;
+      }
+
+      aside .logo-wrap {
+        width: 150px !important;
+        height: 110px !important;
+      }
+
+      aside .avvero-logo {
+        width: 150px !important;
+        height: 110px !important;
+        transform: scale(1.55) !important;
+      }
+
+      aside .brand h1 {
+        font-size: 22px !important;
+      }
+
+      aside .brand span {
+        font-size: 13px !important;
+      }
+
+      aside nav button {
+        min-height: 54px !important;
+        font-size: 17px !important;
+        border-radius: 18px !important;
+        padding: 13px 14px !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      main {
+        padding: 16px 12px calc(28px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar h2 {
+        font-size: 32px !important;
+      }
+
+      .topbar p {
+        font-size: 17px !important;
+      }
+
+      .card {
+        padding: 20px 18px !important;
+      }
+
+      .section-title h3 {
+        font-size: 23px !important;
+      }
+
+      .section-title p {
+        font-size: 15px !important;
+      }
+
+      label {
+        font-size: 15px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 17px !important;
+        min-height: 58px !important;
+      }
+
+      .question {
+        font-size: 18px !important;
+      }
+
+      .hint {
+        font-size: 13px !important;
+      }
+
+      .tab {
+        font-size: 15px !important;
+        min-height: 48px !important;
+        padding: 12px 17px !important;
       }
     }
 
