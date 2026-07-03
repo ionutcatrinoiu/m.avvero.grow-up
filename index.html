@@ -2153,6 +2153,395 @@
       }
     }
 
+
+    /* Mobile v3, vizibil pe iPhone, fără zoom. Desktop peste 980px rămâne neschimbat. */
+    @media (max-width: 980px) {
+      html {
+        -webkit-text-size-adjust: 100%;
+      }
+
+      body {
+        padding-top: calc(86px + env(safe-area-inset-top)) !important;
+        font-size: 17px !important;
+        overflow-x: hidden !important;
+      }
+
+      .mobile-topbar {
+        display: flex !important;
+        height: calc(86px + env(safe-area-inset-top)) !important;
+        padding: calc(16px + env(safe-area-inset-top)) 18px 16px !important;
+        gap: 16px !important;
+        align-items: center !important;
+      }
+
+      .mobile-menu-btn {
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px !important;
+        border-radius: 20px !important;
+        font-size: 28px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 21px !important;
+        line-height: 1 !important;
+        letter-spacing: -.8px !important;
+      }
+
+      .mobile-title span {
+        font-size: 15px !important;
+        margin-top: 5px !important;
+      }
+
+      .app {
+        display: block !important;
+        width: 100% !important;
+      }
+
+      aside {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: min(88vw, 360px) !important;
+        height: 100dvh !important;
+        z-index: 2500 !important;
+        transform: translateX(-105%);
+        transition: transform .22s ease;
+        background: #F4F7FB !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: 24px 0 60px rgba(16,24,40,.18);
+      }
+
+      body.mobile-menu-open aside {
+        transform: translateX(0);
+      }
+
+      main {
+        width: 100% !important;
+        padding: 22px 16px calc(34px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 18px !important;
+        margin-bottom: 22px !important;
+      }
+
+      .topbar h2 {
+        font-size: 38px !important;
+        line-height: 1.05 !important;
+        letter-spacing: -1.2px !important;
+      }
+
+      .topbar p {
+        font-size: 19px !important;
+        line-height: 1.45 !important;
+        margin-top: 10px !important;
+      }
+
+      #audit > .topbar .actions {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      #audit > .topbar .actions .btn {
+        min-height: 62px !important;
+        border-radius: 22px !important;
+        font-size: 19px !important;
+        padding: 16px 18px !important;
+      }
+
+      .grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 22px !important;
+      }
+
+      .span-12,
+      .span-8,
+      .span-6,
+      .span-4 {
+        grid-column: auto !important;
+      }
+
+      .card {
+        padding: 26px 22px !important;
+        border-radius: 28px !important;
+        box-shadow: 0 14px 36px rgba(16,24,40,.08) !important;
+      }
+
+      .section-title {
+        margin-bottom: 20px !important;
+      }
+
+      .section-title h3 {
+        font-size: 25px !important;
+        line-height: 1.2 !important;
+      }
+
+      .section-title p {
+        font-size: 17px !important;
+        line-height: 1.45 !important;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+      }
+
+      label {
+        font-size: 17px !important;
+        margin-bottom: 10px !important;
+        line-height: 1.25 !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 19px !important;
+        min-height: 64px !important;
+        padding: 18px 18px !important;
+        border-radius: 22px !important;
+        line-height: 1.25 !important;
+      }
+
+      textarea {
+        min-height: 130px !important;
+      }
+
+      .tabs {
+        position: sticky;
+        top: calc(86px + env(safe-area-inset-top));
+        z-index: 60;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        gap: 12px !important;
+        margin: -6px -16px 24px !important;
+        padding: 16px !important;
+        background: rgba(244,247,251,.97);
+        border-bottom: 1px solid rgba(228,231,236,.9);
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab {
+        flex: 0 0 auto !important;
+        min-height: 54px !important;
+        padding: 14px 20px !important;
+        font-size: 17px !important;
+        border-radius: 999px !important;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        grid-template-columns: 1fr !important;
+        padding: 22px !important;
+        border-radius: 26px !important;
+        gap: 18px !important;
+        margin-bottom: 22px !important;
+      }
+
+      .checks {
+        gap: 22px !important;
+      }
+
+      .check-row {
+        padding: 24px !important;
+        border-radius: 26px !important;
+        min-height: 0 !important;
+        cursor: default !important;
+      }
+
+      .question-tools {
+        display: none !important;
+      }
+
+      .check-top {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+        padding-right: 0 !important;
+      }
+
+      .question {
+        font-size: 20px !important;
+        line-height: 1.35 !important;
+        padding-right: 48px !important;
+      }
+
+      .hint {
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+        margin-top: 8px !important;
+      }
+
+      .remove-question {
+        width: 42px !important;
+        height: 42px !important;
+        top: 20px !important;
+        right: 20px !important;
+        transform: none !important;
+      }
+
+      .check-row select {
+        min-height: 62px !important;
+        width: 100% !important;
+      }
+
+      .check-row .obs {
+        margin-top: 18px !important;
+        padding-right: 0 !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 140px !important;
+      }
+
+      .field-box input {
+        padding-right: 64px !important;
+      }
+
+      .field-remove {
+        width: 42px !important;
+        height: 42px !important;
+        top: 40px !important;
+        right: 12px !important;
+      }
+
+      .pill {
+        padding: 8px 13px !important;
+        font-size: 15px !important;
+      }
+
+      .metric strong {
+        font-size: 34px !important;
+      }
+
+      #employeeSuggestions {
+        top: 94px !important;
+        max-height: 320px !important;
+        font-size: 18px !important;
+      }
+
+      .issue {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        font-size: 18px !important;
+      }
+
+      .confirm-overlay {
+        align-items: end !important;
+        padding: 14px !important;
+        padding-bottom: calc(14px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .confirm-card {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 28px 22px !important;
+        border-radius: 30px !important;
+      }
+
+      .confirm-card h3 {
+        font-size: 25px !important;
+      }
+
+      .confirm-card p {
+        font-size: 18px !important;
+      }
+
+      .confirm-actions {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+
+      .confirm-actions .btn {
+        min-height: 56px !important;
+        font-size: 18px !important;
+      }
+
+      aside nav button {
+        min-height: 58px !important;
+        font-size: 18px !important;
+      }
+
+      aside .logo-wrap {
+        width: 210px !important;
+        height: 154px !important;
+      }
+
+      aside .avvero-logo {
+        width: 210px !important;
+        height: 154px !important;
+        transform: scale(1.8) !important;
+      }
+
+      .login-screen {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      main {
+        padding: 20px 14px calc(32px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar h2 {
+        font-size: 34px !important;
+      }
+
+      .topbar p {
+        font-size: 18px !important;
+      }
+
+      .card {
+        padding: 24px 20px !important;
+      }
+
+      .section-title h3 {
+        font-size: 24px !important;
+      }
+
+      .section-title p {
+        font-size: 16px !important;
+      }
+
+      label {
+        font-size: 16px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 18px !important;
+        min-height: 62px !important;
+      }
+
+      .question {
+        font-size: 19px !important;
+      }
+
+      .hint {
+        font-size: 14px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
