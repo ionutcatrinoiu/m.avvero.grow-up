@@ -3999,6 +3999,189 @@
       }
     }
 
+
+    /* Update final login mobil: fără header sus și fără scroll inutil în zona logo. Desktop neatins. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      body.login-active {
+        padding-top: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      body.login-active .mobile-topbar,
+      body.login-active #mobileTopbar,
+      body.login-active .mobile-overlay,
+      body.login-active #mobileOverlay,
+      body.login-active .mobile-section-nav-card,
+      body.login-active #mobileSectionNavCard,
+      body.login-active .mobile-sticky-tabs,
+      body.login-active #mobileStickyTabs {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      body.login-active .login-screen {
+        min-height: 100dvh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        padding: calc(10px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom)) !important;
+        overflow: visible !important;
+      }
+
+      body.login-active .login-hero {
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        text-align: center !important;
+      }
+
+      body.login-active .login-hero-content {
+        height: auto !important;
+        max-width: 100% !important;
+        transform: none !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        display: flex !important;
+        gap: 0 !important;
+      }
+
+      body.login-active .login-hero-logo {
+        width: 150px !important;
+        max-width: 44vw !important;
+        margin: -18px auto -8px !important;
+        display: block !important;
+      }
+
+      body.login-active .login-eyebrow {
+        margin: 0 0 6px !important;
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+      }
+
+      body.login-active .login-hero h1 {
+        font-size: clamp(42px, 12vw, 58px) !important;
+        line-height: .9 !important;
+        letter-spacing: -3px !important;
+        margin: 0 !important;
+      }
+
+      body.login-active .login-subtitle {
+        max-width: 92vw !important;
+        margin: 8px auto 0 !important;
+        font-size: 15px !important;
+        line-height: 1.3 !important;
+      }
+
+      body.login-active .login-tags {
+        margin-top: 12px !important;
+        gap: 8px !important;
+        justify-content: center !important;
+      }
+
+      body.login-active .login-tags span {
+        min-height: 34px !important;
+        padding: 0 13px !important;
+        font-size: 12px !important;
+      }
+
+      body.login-active .login-panel {
+        min-height: 0 !important;
+        padding: 14px 0 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        width: 100% !important;
+      }
+
+      body.login-active .login-card {
+        width: 100% !important;
+        min-height: 0 !important;
+        border-radius: 24px !important;
+        padding: 22px 18px 20px !important;
+        margin: 0 auto !important;
+      }
+
+      body.login-active .login-card-logo {
+        width: 235px !important;
+        max-width: 76vw !important;
+        margin: -20px auto -28px !important;
+      }
+
+      body.login-active .login-card h2 {
+        font-size: 22px !important;
+        margin: 0 !important;
+      }
+
+      body.login-active .login-card .login-platform {
+        margin: 10px 0 18px !important;
+        font-size: 14px !important;
+        line-height: 1.35 !important;
+      }
+
+      body.login-active .login-password {
+        min-height: 56px !important;
+        font-size: 17px !important;
+        border-radius: 18px !important;
+        padding: 15px 16px !important;
+      }
+
+      body.login-active .login-enter-btn {
+        min-height: 56px !important;
+        font-size: 16px !important;
+        border-radius: 18px !important;
+        margin-top: 12px !important;
+      }
+
+      body.login-active .login-note {
+        margin-top: 8px !important;
+        min-height: 16px !important;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) and (max-height: 760px) {
+      body.login-active .login-hero-logo {
+        width: 122px !important;
+        margin: -24px auto -10px !important;
+      }
+
+      body.login-active .login-hero h1 {
+        font-size: clamp(38px, 10vw, 50px) !important;
+      }
+
+      body.login-active .login-subtitle {
+        font-size: 13px !important;
+        margin-top: 6px !important;
+      }
+
+      body.login-active .login-tags {
+        margin-top: 8px !important;
+      }
+
+      body.login-active .login-tags span {
+        min-height: 30px !important;
+        font-size: 11px !important;
+      }
+
+      body.login-active .login-panel {
+        padding-top: 10px !important;
+      }
+
+      body.login-active .login-card {
+        padding: 18px 16px 16px !important;
+      }
+
+      body.login-active .login-card-logo {
+        width: 205px !important;
+        margin: -20px auto -30px !important;
+      }
+
+      body.login-active .login-card .login-platform {
+        margin-bottom: 14px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
