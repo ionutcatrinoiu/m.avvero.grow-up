@@ -3414,6 +3414,353 @@
       }
     }
 
+
+    /* Mobile v7, proporție iOS mai mică și meniu capitole fix real. Desktop neatins. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      body {
+        padding-top: calc(72px + env(safe-area-inset-top)) !important;
+        font-size: 16px !important;
+        line-height: 1.35 !important;
+        overflow-x: hidden !important;
+        -webkit-text-size-adjust: 100% !important;
+      }
+
+      .mobile-topbar {
+        height: calc(72px + env(safe-area-inset-top)) !important;
+        padding: calc(12px + env(safe-area-inset-top)) 16px 12px !important;
+        gap: 12px !important;
+        background: rgba(244,247,251,.97) !important;
+        border-bottom: 1px solid rgba(228,231,236,.95) !important;
+        box-shadow: 0 1px 0 rgba(228,231,236,.95) !important;
+      }
+
+      .mobile-menu-btn {
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        border-radius: 17px !important;
+        font-size: 23px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 18px !important;
+        line-height: 1 !important;
+        letter-spacing: -.6px !important;
+      }
+
+      .mobile-title span {
+        font-size: 13px !important;
+        margin-top: 4px !important;
+      }
+
+      main {
+        padding: 16px 12px calc(28px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar {
+        gap: 14px !important;
+        margin-bottom: 18px !important;
+      }
+
+      .topbar h2 {
+        font-size: 30px !important;
+        line-height: 1.08 !important;
+        letter-spacing: -.8px !important;
+      }
+
+      .topbar p {
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+        margin-top: 7px !important;
+      }
+
+      #audit > .topbar .actions {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      #audit > .topbar .actions .btn {
+        min-height: 50px !important;
+        border-radius: 17px !important;
+        font-size: 15px !important;
+        padding: 12px 14px !important;
+      }
+
+      .grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+
+      .card {
+        padding: 18px 16px !important;
+        border-radius: 22px !important;
+        box-shadow: 0 10px 28px rgba(16,24,40,.07) !important;
+      }
+
+      .section-title {
+        margin-bottom: 14px !important;
+      }
+
+      .section-title h3 {
+        font-size: 21px !important;
+        line-height: 1.2 !important;
+      }
+
+      .section-title p {
+        font-size: 13px !important;
+        line-height: 1.35 !important;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+
+      label {
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 7px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px !important;
+        min-height: 52px !important;
+        padding: 13px 14px !important;
+        border-radius: 17px !important;
+        line-height: 1.25 !important;
+      }
+
+      textarea {
+        min-height: 112px !important;
+      }
+
+      .tabs {
+        position: relative !important;
+        top: auto !important;
+        z-index: 1 !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 8px !important;
+        margin: 0 -4px 16px !important;
+        padding: 2px 4px 6px !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none !important;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .tab {
+        flex: 0 0 auto !important;
+        min-height: 42px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        border-radius: 999px !important;
+      }
+
+      .mobile-sticky-tabs {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: calc(72px + env(safe-area-inset-top));
+        z-index: 2400;
+        display: none;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 10px 12px;
+        background: rgba(244,247,251,.98);
+        border-bottom: 1px solid rgba(228,231,236,.95);
+        box-shadow: 0 8px 20px rgba(16,24,40,.08);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .mobile-sticky-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mobile-sticky-tabs.visible {
+        display: flex;
+      }
+
+      .mobile-sticky-tabs .tab {
+        min-height: 42px !important;
+        padding: 10px 14px !important;
+        font-size: 14px !important;
+        white-space: nowrap;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        grid-template-columns: 1fr !important;
+        padding: 16px !important;
+        border-radius: 20px !important;
+        gap: 14px !important;
+        margin-bottom: 16px !important;
+      }
+
+      .checks {
+        gap: 16px !important;
+      }
+
+      .check-row {
+        padding: 18px 16px !important;
+        border-radius: 20px !important;
+        min-height: 0 !important;
+        cursor: default !important;
+      }
+
+      .question-tools {
+        display: none !important;
+      }
+
+      .check-top {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 13px !important;
+        padding-right: 0 !important;
+      }
+
+      .question {
+        font-size: 16px !important;
+        line-height: 1.35 !important;
+        padding-right: 40px !important;
+      }
+
+      .hint {
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+        margin-top: 4px !important;
+      }
+
+      .remove-question {
+        width: 34px !important;
+        height: 34px !important;
+        top: 16px !important;
+        right: 16px !important;
+        transform: none !important;
+      }
+
+      .remove-question svg,
+      .field-remove svg {
+        width: 14px !important;
+        height: 14px !important;
+      }
+
+      .check-row select {
+        min-height: 52px !important;
+        width: 100% !important;
+      }
+
+      .check-row .obs {
+        margin-top: 14px !important;
+        padding-right: 0 !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 118px !important;
+      }
+
+      .field-box input {
+        padding-right: 54px !important;
+      }
+
+      .field-remove {
+        width: 34px !important;
+        height: 34px !important;
+        top: 31px !important;
+        right: 10px !important;
+      }
+
+      .pill {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+      }
+
+      .metric strong {
+        font-size: 26px !important;
+      }
+
+      aside {
+        width: min(72vw, 290px) !important;
+        padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom)) !important;
+      }
+
+      aside .logo-wrap {
+        width: 130px !important;
+        height: 96px !important;
+      }
+
+      aside .avvero-logo {
+        width: 130px !important;
+        height: 96px !important;
+        transform: scale(1.45) !important;
+      }
+
+      aside .brand {
+        gap: 0 !important;
+        margin-bottom: 22px !important;
+        padding-bottom: 14px !important;
+      }
+
+      aside .brand h1 {
+        font-size: 19px !important;
+      }
+
+      aside .brand span {
+        font-size: 12px !important;
+      }
+
+      aside nav button {
+        min-height: 48px !important;
+        font-size: 15px !important;
+        border-radius: 16px !important;
+        padding: 12px 13px !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .topbar h2 {
+        font-size: 28px !important;
+      }
+
+      .topbar p {
+        font-size: 14px !important;
+      }
+
+      .card {
+        padding: 16px 14px !important;
+      }
+
+      .section-title h3 {
+        font-size: 20px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 16px !important;
+        min-height: 50px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
@@ -3455,6 +3802,7 @@
     </div>
   </div>
   <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu(false)"></div>
+  <div id="mobileStickyTabs" class="mobile-sticky-tabs"></div>
 
   <div class="app">
     <aside>
@@ -4704,6 +5052,51 @@ function saveChaptersConfig() {
       if (event.key === 'Enter') {
         enterApplication();
       }
+    }
+
+
+
+    function refreshMobileStickyTabs() {
+      const sticky = document.getElementById('mobileStickyTabs');
+      const tabs = document.getElementById('tabs');
+      const auditPage = document.getElementById('audit');
+      const sectionsCard = document.querySelector('#sections')?.closest('.card');
+
+      if (!sticky || !tabs || !auditPage || auditPage.classList.contains('hidden') || window.innerWidth > 980) {
+        if (sticky) sticky.classList.remove('visible');
+        return;
+      }
+
+      sticky.innerHTML = [...tabs.children].map(button => {
+        const title = button.innerText;
+        const active = button.classList.contains('active') ? ' active' : '';
+        return `<button type="button" class="tab${active}" data-title="${title.replaceAll('"', '&quot;')}">${title}</button>`;
+      }).join('');
+
+      sticky.querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', () => {
+          const original = [...tabs.children].find(item => item.innerText === button.dataset.title);
+          if (original) original.click();
+          setTimeout(refreshMobileStickyTabs, 0);
+        });
+      });
+
+      const rect = tabs.getBoundingClientRect();
+      const cardRect = sectionsCard ? sectionsCard.getBoundingClientRect() : { bottom: 0 };
+      const shouldShow = rect.top <= (86 + (window.visualViewport?.offsetTop || 0)) && cardRect.bottom > 150;
+
+      sticky.classList.toggle('visible', shouldShow);
+    }
+
+    function setupRealMobileStickyTabs() {
+      window.addEventListener('scroll', refreshMobileStickyTabs, { passive: true });
+      window.addEventListener('resize', refreshMobileStickyTabs);
+      document.addEventListener('click', event => {
+        if (event.target.closest('.tab') || event.target.closest('nav button')) {
+          setTimeout(refreshMobileStickyTabs, 80);
+        }
+      });
+      setTimeout(refreshMobileStickyTabs, 300);
     }
 
 
