@@ -2542,6 +2542,341 @@
       }
     }
 
+
+    /* Mobile v4, forțează layout de telefon ușor de completat. Desktop rămâne neatins. */
+    @media (hover: none) and (pointer: coarse), (max-width: 980px) {
+      html,
+      body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        -webkit-text-size-adjust: 100% !important;
+      }
+
+      body {
+        padding-top: calc(96px + env(safe-area-inset-top)) !important;
+        font-size: 20px !important;
+        line-height: 1.35 !important;
+      }
+
+      .mobile-topbar {
+        display: flex !important;
+        height: calc(96px + env(safe-area-inset-top)) !important;
+        padding: calc(18px + env(safe-area-inset-top)) 20px 18px !important;
+        gap: 18px !important;
+      }
+
+      .mobile-menu-btn {
+        width: 64px !important;
+        height: 64px !important;
+        min-width: 64px !important;
+        border-radius: 22px !important;
+        font-size: 32px !important;
+      }
+
+      .mobile-title strong {
+        font-size: 24px !important;
+        line-height: 1 !important;
+        letter-spacing: -.8px !important;
+      }
+
+      .mobile-title span {
+        font-size: 17px !important;
+        margin-top: 6px !important;
+      }
+
+      .app,
+      main,
+      .page,
+      .grid,
+      .card,
+      .form-grid,
+      .audit-section {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      main {
+        padding: 24px 18px calc(40px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar {
+        gap: 22px !important;
+        margin-bottom: 26px !important;
+      }
+
+      .topbar h2 {
+        font-size: 44px !important;
+        line-height: 1.05 !important;
+        letter-spacing: -1.4px !important;
+      }
+
+      .topbar p {
+        font-size: 22px !important;
+        line-height: 1.45 !important;
+        margin-top: 12px !important;
+      }
+
+      #audit > .topbar .actions {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        width: 100% !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      #audit > .topbar .actions .btn {
+        min-height: 72px !important;
+        width: 100% !important;
+        border-radius: 24px !important;
+        font-size: 22px !important;
+        padding: 18px 20px !important;
+      }
+
+      .grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 28px !important;
+      }
+
+      .card {
+        padding: 32px 26px !important;
+        border-radius: 32px !important;
+        box-shadow: 0 16px 42px rgba(16,24,40,.09) !important;
+      }
+
+      .section-title {
+        margin-bottom: 26px !important;
+      }
+
+      .section-title h3 {
+        font-size: 30px !important;
+        line-height: 1.18 !important;
+      }
+
+      .section-title p {
+        font-size: 20px !important;
+        line-height: 1.45 !important;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 26px !important;
+      }
+
+      label {
+        font-size: 20px !important;
+        line-height: 1.25 !important;
+        margin-bottom: 12px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 22px !important;
+        min-height: 76px !important;
+        padding: 21px 22px !important;
+        border-radius: 26px !important;
+        line-height: 1.25 !important;
+      }
+
+      textarea {
+        min-height: 160px !important;
+      }
+
+      .tabs {
+        position: static !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 14px !important;
+        margin: 0 -8px 28px !important;
+        padding: 4px 8px 12px !important;
+        background: transparent !important;
+        border-bottom: 0 !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .tabs::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .tab {
+        flex: 0 0 auto !important;
+        min-height: 64px !important;
+        padding: 18px 24px !important;
+        font-size: 20px !important;
+        border-radius: 999px !important;
+      }
+
+      .responsible-box,
+      .indicator-admin,
+      .question-admin {
+        grid-template-columns: 1fr !important;
+        padding: 28px !important;
+        border-radius: 30px !important;
+        gap: 22px !important;
+        margin-bottom: 28px !important;
+      }
+
+      .checks {
+        gap: 28px !important;
+      }
+
+      .check-row {
+        padding: 30px 26px !important;
+        border-radius: 30px !important;
+        min-height: 0 !important;
+        cursor: default !important;
+      }
+
+      .question-tools {
+        display: none !important;
+      }
+
+      .check-top {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 22px !important;
+        padding-right: 0 !important;
+      }
+
+      .question {
+        font-size: 24px !important;
+        line-height: 1.35 !important;
+        padding-right: 54px !important;
+      }
+
+      .hint {
+        font-size: 17px !important;
+        line-height: 1.4 !important;
+        margin-top: 8px !important;
+      }
+
+      .remove-question {
+        width: 48px !important;
+        height: 48px !important;
+        top: 26px !important;
+        right: 24px !important;
+        transform: none !important;
+      }
+
+      .remove-question svg,
+      .field-remove svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+
+      .check-row select {
+        min-height: 74px !important;
+        width: 100% !important;
+      }
+
+      .check-row .obs {
+        margin-top: 24px !important;
+        padding-right: 0 !important;
+      }
+
+      .check-row .obs textarea {
+        min-height: 170px !important;
+      }
+
+      .field-box input {
+        padding-right: 74px !important;
+      }
+
+      .field-remove {
+        width: 48px !important;
+        height: 48px !important;
+        top: 48px !important;
+        right: 14px !important;
+      }
+
+      .pill {
+        padding: 10px 15px !important;
+        font-size: 18px !important;
+      }
+
+      .metric strong {
+        font-size: 40px !important;
+      }
+
+      #employeeSuggestions {
+        top: 112px !important;
+        max-height: 360px !important;
+        font-size: 21px !important;
+      }
+
+      aside nav button {
+        min-height: 68px !important;
+        font-size: 21px !important;
+      }
+
+      .confirm-card h3 {
+        font-size: 29px !important;
+      }
+
+      .confirm-card p {
+        font-size: 21px !important;
+      }
+
+      .confirm-actions .btn {
+        min-height: 66px !important;
+        font-size: 21px !important;
+      }
+    }
+
+    @media (max-width: 430px) {
+      main {
+        padding: 22px 16px calc(38px + env(safe-area-inset-bottom)) !important;
+      }
+
+      .topbar h2 {
+        font-size: 40px !important;
+      }
+
+      .topbar p {
+        font-size: 20px !important;
+      }
+
+      .card {
+        padding: 30px 24px !important;
+      }
+
+      .section-title h3 {
+        font-size: 28px !important;
+      }
+
+      .section-title p {
+        font-size: 19px !important;
+      }
+
+      label {
+        font-size: 19px !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: 21px !important;
+        min-height: 74px !important;
+      }
+
+      .question {
+        font-size: 23px !important;
+      }
+
+      .hint {
+        font-size: 16px !important;
+      }
+    }
+
   </style>
 </head>
 <body class="login-active">
