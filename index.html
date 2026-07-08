@@ -7317,7 +7317,10 @@ applyPreviousActionMarkers();
       if (scoreEl) scoreEl.innerText = avg + '%';
       if (issuesEl) issuesEl.innerText = activeIssues.length;
       updateIssueNavigationCount(activeIssues.length);
-      if (ringEl) ringEl.style.setProperty('--dashboard-score', avg + '%');
+      if (ringEl) {
+        ringEl.style.setProperty('--dashboard-score', avg + '%');
+        ringEl.style.setProperty('--dashboard-ring-color', avg < 85 ? 'var(--red)' : 'var(--primary)');
+      }
       if (ringLabel) ringLabel.innerText = avg + '%';
       if (miniMeta) miniMeta.innerHTML = `<span>${filteredHistory.length} audituri</span><span>${activeIssues.length} acțiuni deschise</span>`;
       if (lastEl) lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
