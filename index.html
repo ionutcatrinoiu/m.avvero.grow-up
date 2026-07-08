@@ -1754,6 +1754,48 @@
       justify-content: center;
     }
 
+
+    .history-icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #344054;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all .18s ease;
+      padding: 0;
+    }
+
+    .history-icon-btn:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(22,93,255,.10);
+    }
+
+    .history-icon-btn.delete-history {
+      border-color: #ffd9d6;
+      background: #fff7f6;
+      color: var(--red);
+    }
+
+    .history-icon-btn.delete-history:hover {
+      border-color: var(--red);
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(240,68,56,.18);
+    }
+
+    .history-icon-btn svg {
+      display: block;
+      flex: 0 0 auto;
+    }
+
     .issue-card-actions {
       display: flex;
       justify-content: flex-end;
@@ -1832,6 +1874,12 @@
     .check-row.has-previous-action {
       border-color: #fed7aa;
       box-shadow: 0 12px 30px rgba(247,144,9,.10);
+    }
+
+
+
+    .history-actions .mini-btn {
+      min-width: 74px;
     }
 
     .hidden { display: none !important; }
@@ -7545,6 +7593,34 @@ applyPreviousActionMarkers();
       saveAuditContentState();
     }
 
+    function downloadAuditPdfFromHistory(id) {
+      const record = getAuditHistory().find(item => item.id === id);
+      if (!record || !record.state) return;
+
+      let currentState = null;
+      try {
+        currentState = captureAuditContentState();
+      } catch (error) {
+        currentState = null;
+      }
+
+      const previousApplyingRemoteState = applyingRemoteState;
+      applyingRemoteState = true;
+      restoreAuditContentState(record.state);
+
+      setTimeout(() => {
+        try {
+          generateGrowUpPDF();
+        } finally {
+          if (currentState) restoreAuditContentState(currentState);
+          applyingRemoteState = previousApplyingRemoteState;
+          renderDashboardStats();
+          renderHistory(false);
+          renderIssues(false);
+        }
+      }, 80);
+    }
+
     async function deleteAuditFromHistory(id) {
       const confirmed = await showConfirmModal('Ștergi acest audit din istoric?', 'Ștergere audit');
       if (!confirmed) return;
@@ -7581,8 +7657,15 @@ applyPreviousActionMarkers();
           <div class="history-card">
             <strong>${escapeHtml(item.depot)}</strong>
             <div class="history-actions">
-              <button class="mini-btn" type="button" onclick="loadAuditFromHistory('${item.id}')">Deschide</button>
-              <button class="mini-btn" type="button" onclick="deleteAuditFromHistory('${item.id}')">Șterge</button>
+              <button class="history-icon-btn" type="button" title="Deschide auditul" aria-label="Deschide auditul" onclick="loadAuditFromHistory('${item.id}')">
+                <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 5c5.2 0 9.2 4.1 10.5 7-1.3 2.9-5.3 7-10.5 7S2.8 14.9 1.5 12C2.8 9.1 6.8 5 12 5Zm0 2C8.2 7 5.2 9.7 3.8 12c1.4 2.3 4.4 5 8.2 5s6.8-2.7 8.2-5C18.8 9.7 15.8 7 12 7Zm0 2.2a2.8 2.8 0 1 1 0 5.6 2.8 2.8 0 0 1 0-5.6Z"/></svg>
+              </button>
+              <button class="history-icon-btn" type="button" title="Descarcă PDF" aria-label="Descarcă PDF" onclick="downloadAuditPdfFromHistory('${item.id}')">
+                <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5 20h14v-2H5v2ZM13 4h-2v8.2L7.8 9 6.4 10.4 12 16l5.6-5.6L16.2 9 13 12.2V4Z"/></svg>
+              </button>
+              <button class="history-icon-btn delete-history" type="button" title="Șterge auditul" aria-label="Șterge auditul" onclick="deleteAuditFromHistory('${item.id}')">
+                <svg class="trash-icon" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/></svg>
+              </button>
             </div>
             <span class="${riskClass}">${item.score}%</span>
             <span>${escapeHtml(date)}</span>
@@ -8650,19 +8733,50 @@ function saveChaptersConfig() {
       renderDepotAgentsEditor();
     }
 
+    function clearAuditRuntimeFields() {
+      resetAuditInputsForNewAudit();
+      updateActivityVisibility();
+
+      document.querySelectorAll('#audit .field-box input').forEach(input => { input.value = ''; });
+      document.querySelectorAll('#audit textarea').forEach(textarea => { textarea.value = ''; });
+      document.querySelectorAll('#audit .indicator-admin input, #audit .question-admin input').forEach(input => { input.value = ''; });
+
+      document.querySelectorAll('#audit select[data-responsible]').forEach(select => { select.value = ''; });
+      document.querySelectorAll('#audit .check-row').forEach(row => {
+        const selects = row.querySelectorAll('select');
+        if (selects[0]) selects[0].value = 'ok';
+        if (selects[1]) selects[1].value = 'Fără riscuri';
+        const action = row.querySelector('[data-corrective-action]');
+        if (action) action.value = '';
+        const due = row.querySelector('[data-corrective-due]');
+        if (due) due.value = '';
+        const priority = row.querySelector('[data-corrective-priority]');
+        if (priority) priority.value = 'Medie';
+        const status = row.querySelector('[data-corrective-status]');
+        if (status) status.value = 'Deschis';
+        const obs = row.querySelector('.obs');
+        if (obs) obs.classList.remove('required');
+      });
+
+      const firstActive = chapters.filter(isActiveChapter)[0]?.id || '';
+      if (firstActive) activateTab(firstActive);
+      checkPersonalKmAlert();
+      recalc();
+    }
+
     function startNewAudit() {
       localStorage.removeItem(AUDIT_STORAGE_KEY);
       lastLocalWrite = Date.now();
 
       loadChaptersConfig();
-      resetAuditInputsForNewAudit();
       renderSections();
+      clearAuditRuntimeFields();
       applyPreviousActionMarkers();
       recalc();
       saveAuditContentState();
       goPage('audit');
       window.scrollTo(0, 0);
-      setSyncStatus('Audit nou resetat', true);
+      setSyncStatus('Audit nou resetat complet', true);
     }
 
     function resetForm() { startNewAudit(); }
@@ -8876,6 +8990,8 @@ function saveChaptersConfig() {
       const loginScreen = document.getElementById('loginScreen');
       if (loginScreen) loginScreen.classList.add('hidden');
       document.body.classList.remove('login-active');
+      goPage('dashboard');
+      window.scrollTo(0, 0);
     }
 
     function returnToLogin() {
@@ -8890,6 +9006,16 @@ function saveChaptersConfig() {
         setTimeout(() => passwordInput.focus(), 50);
       }
       if (loginError) loginError.textContent = '';
+      window.scrollTo(0, 0);
+    }
+
+    function restoreSessionToDashboard() {
+      const loginScreen = document.getElementById('loginScreen');
+      if (sessionStorage.getItem('grow-up-audit-login') === 'open') {
+        if (loginScreen) loginScreen.classList.add('hidden');
+        document.body.classList.remove('login-active');
+      }
+      goPage('dashboard');
       window.scrollTo(0, 0);
     }
 
@@ -8913,6 +9039,7 @@ function saveChaptersConfig() {
     resetAuditPeriodDefaults();
     renderVehicles();
     renderSections();
+    restoreSessionToDashboard();
   </script>
 
   <div id="inputOverlay" class="confirm-overlay hidden">
