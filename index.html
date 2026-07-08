@@ -797,6 +797,99 @@
     }
 
 
+
+
+    .vehicle-audit-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0 0 16px;
+      padding: 12px;
+      border: 1px solid #d7e3ff;
+      background: #f8fbff;
+      border-radius: 18px;
+    }
+
+    .vehicle-audit-tab {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 13px;
+      border-radius: 999px;
+      font-weight: 800;
+      cursor: pointer;
+      color: #344054;
+      transition: all .18s ease;
+    }
+
+    .vehicle-audit-tab:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-1px);
+    }
+
+    .vehicle-audit-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(22, 93, 255, .18);
+    }
+
+    .vehicle-audit-panel {
+      display: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .vehicle-audit-panel.active {
+      display: block;
+    }
+
+    .vehicle-audit-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .vehicle-audit-head h4 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .vehicle-audit-head small {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .vehicle-audit-score {
+      flex: 0 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .vehicle-audit-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .vehicle-audit-tab {
+        white-space: nowrap;
+        flex: 0 0 auto;
+      }
+
+      .vehicle-audit-head {
+        flex-direction: column;
+      }
+    }
+
+
     .vehicles-container {
       display: grid;
       gap: 16px;
@@ -1566,7 +1659,7 @@
       place-items: center;
       background:
         radial-gradient(circle at center, #fff 0 58%, transparent 59%),
-        conic-gradient(var(--primary) var(--dashboard-score, 0%), #edf2f7 0);
+        conic-gradient(var(--dashboard-score-color, var(--primary)) var(--dashboard-score, 0%), #edf2f7 0);
       box-shadow: 0 22px 46px rgba(22,93,255,.12);
     }
 
@@ -6067,7 +6160,7 @@ function getVehicleFieldHtml(field, vehicle) {
     return `
       <div>
         <label>Regim proprietate</label>
-        <select data-vehicle-field="${field}">
+        <select data-vehicle-field="${field}" onchange="handleVehicleDetailsChange()">
           <option value="">Selectează regimul</option>
           ${options.map(option => `<option value="${option}" ${value === option ? 'selected' : ''}>${option}</option>`).join('')}
         </select>
@@ -6085,7 +6178,7 @@ function getVehicleFieldHtml(field, vehicle) {
     return `
       <div>
         <label>${field}</label>
-        <select data-vehicle-field="${field}">
+        <select data-vehicle-field="${field}" onchange="handleVehicleDetailsChange()">
           <option value="">${field === 'Șofer alternativ' ? 'Fără șofer alternativ' : (depot ? 'Selectează persoana' : 'Selectează mai întâi depozitul')}</option>
           ${people.map(person => `<option value="${person.name}" ${value === person.name ? 'selected' : ''}>${person.name}</option>`).join('')}
         </select>
@@ -6097,7 +6190,7 @@ function getVehicleFieldHtml(field, vehicle) {
     return `
       <div>
         <label>${field}</label>
-        <select data-vehicle-field="${field}">
+        <select data-vehicle-field="${field}" onchange="handleVehicleDetailsChange()">
           <option value="">Selectează răspunsul</option>
           <option value="Da" ${value === 'Da' ? 'selected' : ''}>Da</option>
           <option value="Nu" ${value === 'Nu' ? 'selected' : ''}>Nu</option>
@@ -6110,7 +6203,7 @@ function getVehicleFieldHtml(field, vehicle) {
   return `
     <div>
       <label>${displayField}</label>
-      <input data-vehicle-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}">
+      <input data-vehicle-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}" onchange="handleVehicleDetailsChange()">
     </div>
   `;
 }
@@ -6133,10 +6226,17 @@ function renderVehicles(values = null) {
   `).join('');
 }
 
+function handleVehicleDetailsChange() {
+  const activeChapter = document.querySelector('.audit-section.active')?.id?.replace('section-', '') || 'car';
+  renderSectionsPreservingContent(activeChapter);
+  saveAuditContentState();
+}
+
 function addVehicle() {
   const values = getVehicleValues();
   values.push({});
   renderVehicles(values);
+  renderSectionsPreservingContent('car');
   saveAuditContentState();
 }
 
@@ -6144,6 +6244,7 @@ function removeVehicle(index) {
   const values = getVehicleValues();
   values.splice(index, 1);
   renderVehicles(values.length ? values : [{}]);
+  renderSectionsPreservingContent('car');
   saveAuditContentState();
 }
 
@@ -6342,6 +6443,90 @@ function fillColleagueSelects() {
       return true;
     }
 
+    function getVehicleAuditTitle(vehicle, index) {
+      const brand = vehicle?.Marca || '';
+      const model = vehicle?.Modelul || '';
+      const plate = vehicle?.['Numărul de înmatriculare'] || '';
+      const name = `${brand} ${model}`.trim() || `Autoturism ${index + 1}`;
+      return plate ? `${name}, ${plate}` : name;
+    }
+
+    function getVehicleAuditItems() {
+      const values = getVehicleValues().filter(vehicle => Object.values(vehicle || {}).some(Boolean));
+      return values.length ? values : [{ }];
+    }
+
+    function activateVehicleAuditTab(index) {
+      document.querySelectorAll('.vehicle-audit-tab').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.vehicleAuditIndex) === Number(index)));
+      document.querySelectorAll('.vehicle-audit-panel').forEach(panel => panel.classList.toggle('active', Number(panel.dataset.vehicleAuditIndex) === Number(index)));
+    }
+
+    function getQuestionHtml(ch, q, i, vehicleIndex = null) {
+      const vehicleAttr = vehicleIndex === null ? '' : ` data-vehicle-audit-index="${vehicleIndex}"`;
+      return `
+        <div class="check-row" draggable="true" data-chapter="${ch.id}" data-question-index="${i}"${vehicleAttr} ondragstart="handleQuestionDragStart(event, \'${ch.id}\', ${i})" ondragover="handleQuestionDragOver(event)" ondrop="handleQuestionDrop(event, \'${ch.id}\', ${i})" ondragend="handleQuestionDragEnd(event)">
+          <div class="check-top">
+            <div><div class="question">${q[0]}</div><div class="hint">Acțiunea corectivă devine obligatorie la răspuns neconform.</div></div>
+            <select data-bad="${q[1]}" onchange="handleAnswer(this)">
+              <option value="ok" ${q[1]==='yes' ? '' : 'selected'}>Da</option>
+              <option value="bad" ${q[1]==='yes' ? 'selected' : ''}>Nu</option>
+            </select>
+            <select onchange="saveAuditContentState()">
+              <option>Fără riscuri</option>
+              <option>Risc scăzut</option>
+              <option>Risc mediu</option>
+              <option>Risc ridicat</option>
+              <option>Critic</option>
+            </select>
+          </div>
+          <div class="question-tools">
+            <div class="drag-handle">⋮⋮</div>
+          </div>
+          <button class="remove-question" tabindex="-1" type="button" title="Elimină întrebarea" onclick="removeQuestion('${ch.id}', ${i})"><svg class="trash-icon" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
+  <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/>
+</svg></button>
+          <div class="obs corrective-panel">
+            <div class="corrective-grid">
+              <div><label>Observații</label><textarea data-corrective-observation onchange="saveAuditContentState()" placeholder="Descrie constatarea"></textarea></div>
+              <div><label>Acțiune corectivă</label><textarea data-corrective-action onchange="saveAuditContentState()" placeholder="Descrie acțiunea necesară"></textarea></div>
+              <div><label>Termen</label><input type="date" data-corrective-due onchange="saveAuditContentState()"></div>
+              <div><label>Prioritate</label><select data-corrective-priority onchange="saveAuditContentState()"><option>Scăzută</option><option selected>Medie</option><option>Ridicată</option><option>Critică</option></select></div>
+              <div><label>Status</label><select data-corrective-status onchange="saveAuditContentState()"><option selected>Deschis</option><option>În lucru</option><option>Rezolvat</option><option>Închis</option></select></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getFieldHtml(ch, f, fieldIndex, vehicleIndex = null) {
+      const vehicleAttr = vehicleIndex === null ? '' : ` data-vehicle-audit-index="${vehicleIndex}"`;
+      return `<div class="field-box field-draggable" draggable="true" data-chapter="${ch.id}" data-field-index="${fieldIndex}"${vehicleAttr} ondragstart="handleFieldDragStart(event, '${ch.id}', ${fieldIndex})" ondragover="handleFieldDragOver(event)" ondrop="handleFieldDrop(event, '${ch.id}', ${fieldIndex})" ondragend="handleFieldDragEnd(event)"><span class="field-drag-handle">⋮⋮</span><label>${f}</label><input data-field="${ch.id}" placeholder="Completează valoarea" onchange="saveAuditContentState()"><button class="field-remove" tabindex="-1" type="button" title="Elimină câmpul" onclick="removeField('${ch.id}', ${fieldIndex})"><svg class="trash-icon" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
+  <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/>
+</svg></button></div>`;
+    }
+
+    function getVehicleAuditHtml(ch) {
+      const vehicles = getVehicleAuditItems();
+      const tabsHtml = vehicles.map((vehicle, index) => `<button type="button" class="vehicle-audit-tab ${index === 0 ? 'active' : ''}" data-vehicle-audit-index="${index}" onclick="activateVehicleAuditTab(${index})">${escapeHtml(getVehicleAuditTitle(vehicle, index))}</button>`).join('');
+      const panelsHtml = vehicles.map((vehicle, index) => `
+        <div class="vehicle-audit-panel ${index === 0 ? 'active' : ''}" data-vehicle-audit-index="${index}">
+          <div class="vehicle-audit-head">
+            <div><h4>${escapeHtml(getVehicleAuditTitle(vehicle, index))}</h4><small>Completează auditul pentru acest autoturism.</small></div>
+            <span class="pill vehicle-audit-score" id="vehicle-pill-${index}">100%</span>
+          </div>
+          <div id="carKmAlert-${index}" class="km-alert">Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.</div>
+          ${ch.fields.length ? `<div class="form-grid field-grid" style="margin-bottom:16px">${ch.fields.map((f, fieldIndex) => getFieldHtml(ch, f, fieldIndex, index)).join('')}</div>` : ''}
+          <div class="checks">
+            ${ch.questions.map((q, i) => getQuestionHtml(ch, q, i, index)).join('')}
+          </div>
+        </div>
+      `).join('');
+      return `
+        <div class="vehicle-audit-tabs">${tabsHtml}</div>
+        ${panelsHtml}
+      `;
+    }
+
     function renderSections() {
       tabs.innerHTML = '';
       sections.innerHTML = '';
@@ -6366,15 +6551,15 @@ function fillColleagueSelects() {
         const el = document.createElement('div');
         el.className = 'audit-section' + (index === 0 ? ' active' : '');
         el.id = 'section-' + ch.id;
+        const standardFieldsHtml = ch.fields.length ? `<div class="form-grid field-grid" style="margin-bottom:16px">${ch.fields.map((f, fieldIndex) => getFieldHtml(ch, f, fieldIndex)).join('')}</div>` : '';
+        const standardQuestionsHtml = `<div class="checks">${ch.questions.map((q, i) => getQuestionHtml(ch, q, i)).join('')}</div>`;
         el.innerHTML = `
           <div class="section-title">
             <div><h3>${ch.title}</h3><p>Completează indicatorii, apoi răspunsurile de conformitate.</p></div>
             <div class="section-controls">
               <span class="pill" id="pill-${ch.id}">100%</span>
-
             </div>
           </div>
-          ${ch.id === 'car' ? `<div id="carKmAlert" class="km-alert">Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.</div>` : ''}
           ${ch.id !== 'car' ? `<div class="responsible-box">
             <div class="responsible-list" data-responsibles="${ch.id}">
               <div class="responsible-item">
@@ -6384,9 +6569,7 @@ function fillColleagueSelects() {
             </div>
             <button class="btn ghost add-question-btn" type="button" onclick="addResponsible('${ch.id}')">Adaugă responsabil</button>
           </div>` : ''}
-          ${ch.fields.length ? `<div class="form-grid field-grid" style="margin-bottom:16px">${ch.fields.map((f, fieldIndex) => `<div class="field-box field-draggable" draggable="true" data-chapter="${ch.id}" data-field-index="${fieldIndex}" ondragstart="handleFieldDragStart(event, '${ch.id}', ${fieldIndex})" ondragover="handleFieldDragOver(event)" ondrop="handleFieldDrop(event, '${ch.id}', ${fieldIndex})" ondragend="handleFieldDragEnd(event)"><span class="field-drag-handle">⋮⋮</span><label>${f}</label><input data-field="${ch.id}" placeholder="Completează valoarea"><button class="field-remove" tabindex="-1" type="button" title="Elimină câmpul" onclick="removeField('${ch.id}', ${fieldIndex})"><svg class="trash-icon" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
-  <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/>
-</svg></button></div>`).join('')}</div>` : ''}
+          ${ch.id === 'car' ? getVehicleAuditHtml(ch) : standardFieldsHtml}
           <div class="indicator-admin">
             <div>
               <label>Adaugă indicator nou</label>
@@ -6394,41 +6577,7 @@ function fillColleagueSelects() {
             </div>
             <button class="btn primary add-question-btn" type="button" onclick="addField('${ch.id}')">Adaugă indicator</button>
           </div>
-          <div class="checks">
-            ${ch.questions.map((q, i) => `
-              <div class="check-row" draggable="true" data-chapter="${ch.id}" data-question-index="${i}" ondragstart="handleQuestionDragStart(event, \'${ch.id}\', ${i})" ondragover="handleQuestionDragOver(event)" ondrop="handleQuestionDrop(event, \'${ch.id}\', ${i})" ondragend="handleQuestionDragEnd(event)">
-                <div class="check-top">
-                  <div><div class="question">${q[0]}</div><div class="hint">Acțiunea corectivă devine obligatorie la răspuns neconform.</div></div>
-                  <select data-bad="${q[1]}" onchange="handleAnswer(this)">
-                    <option value="ok" ${q[1]==='yes' ? '' : 'selected'}>Da</option>
-                    <option value="bad" ${q[1]==='yes' ? 'selected' : ''}>Nu</option>
-                  </select>
-                  <select>
-                    <option>Fără riscuri</option>
-                    <option>Risc scăzut</option>
-                    <option>Risc mediu</option>
-                    <option>Risc ridicat</option>
-                    <option>Critic</option>
-                  </select>
-                </div>
-                <div class="question-tools">
-                  <div class="drag-handle">⋮⋮</div>
-                </div>
-                <button class="remove-question" tabindex="-1" type="button" title="Elimină întrebarea" onclick="removeQuestion('${ch.id}', ${i})"><svg class="trash-icon" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
-  <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/>
-</svg></button>
-                <div class="obs corrective-panel">
-                  <div class="corrective-grid">
-                    <div><label>Observații</label><textarea data-corrective-observation onchange="saveAuditContentState()" placeholder="Descrie constatarea"></textarea></div>
-                    <div><label>Acțiune corectivă</label><textarea data-corrective-action onchange="saveAuditContentState()" placeholder="Descrie acțiunea necesară"></textarea></div>
-                    <div><label>Termen</label><input type="date" data-corrective-due onchange="saveAuditContentState()"></div>
-                    <div><label>Prioritate</label><select data-corrective-priority onchange="saveAuditContentState()"><option>Scăzută</option><option selected>Medie</option><option>Ridicată</option><option>Critică</option></select></div>
-                    <div><label>Status</label><select data-corrective-status onchange="saveAuditContentState()"><option selected>Deschis</option><option>În lucru</option><option>Rezolvat</option><option>Închis</option></select></div>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
+          ${ch.id === 'car' ? '' : standardQuestionsHtml}
           <div class="question-admin">
             <div>
               <label>Adaugă întrebare nouă</label>
@@ -6443,14 +6592,13 @@ function fillColleagueSelects() {
             </div>
             <button class="btn primary add-question-btn" type="button" onclick="addQuestion('${ch.id}')">Adaugă întrebare</button>
           </div>
-          <div style="margin-top:16px"><label>Observații generale</label><textarea placeholder="Observații suplimentare pentru acest capitol"></textarea></div>
+          <div style="margin-top:16px"><label>Observații generale</label><textarea placeholder="Observații suplimentare pentru acest capitol" onchange="saveAuditContentState()"></textarea></div>
         `;
         sections.appendChild(el);
       });
-applyPreviousActionMarkers();
+      applyPreviousActionMarkers();
       recalc();
     }
-
 
 
     let confirmResolve = null;
@@ -7324,7 +7472,10 @@ applyPreviousActionMarkers();
       if (scoreEl) scoreEl.innerText = avg + '%';
       if (issuesEl) issuesEl.innerText = activeIssues.length;
       updateIssueNavigationCount(activeIssues.length);
-      if (ringEl) ringEl.style.setProperty('--dashboard-score', avg + '%');
+      if (ringEl) {
+        ringEl.style.setProperty('--dashboard-score', avg + '%');
+        ringEl.style.setProperty('--dashboard-score-color', avg < 85 ? 'var(--red)' : 'var(--green)');
+      }
       if (ringLabel) ringLabel.innerText = avg + '%';
       if (miniMeta) miniMeta.innerHTML = `<span>${filteredHistory.length} audituri</span><span>${activeIssues.length} acțiuni deschise</span>`;
       if (lastEl) lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
@@ -8093,6 +8244,10 @@ function saveChaptersConfig() {
       const badRows = rows.filter(isAnswerNonconform);
       const score = rows.length ? Math.round(((rows.length - badRows.length) / rows.length) * 100) : 100;
       document.getElementById('scoreTotal').innerText = score + '%';
+      const liveRingEl = document.getElementById('dashboardScoreRing');
+      if (liveRingEl) {
+        liveRingEl.style.setProperty('--dashboard-score-color', score < 85 ? 'var(--red)' : 'var(--green)');
+      }
       document.getElementById('issueCount').innerText = getActiveCurrentIssueCount();
       updateIssueNavigationCount(getActiveCurrentIssueCount());
 
@@ -8103,6 +8258,14 @@ function saveChaptersConfig() {
         const pill = document.getElementById('pill-' + ch.id);
         if (pill) pill.innerText = chScore + '%';
         return { title: ch.title, score: chScore };
+      });
+
+      document.querySelectorAll('.vehicle-audit-panel').forEach(panel => {
+        const rowsForVehicle = [...panel.querySelectorAll('.check-row')];
+        const badForVehicle = rowsForVehicle.filter(isAnswerNonconform).length;
+        const vehicleScore = rowsForVehicle.length ? Math.round(((rowsForVehicle.length - badForVehicle) / rowsForVehicle.length) * 100) : 100;
+        const vehiclePill = document.getElementById('vehicle-pill-' + panel.dataset.vehicleAuditIndex);
+        if (vehiclePill) vehiclePill.innerText = vehicleScore + '%';
       });
 
       document.getElementById('chapterScores').innerHTML = scores
@@ -8194,7 +8357,7 @@ function saveChaptersConfig() {
         const questionRows = [...section.querySelectorAll('.check-row')];
         const generalObs = section.querySelector('textarea[placeholder="Observații suplimentare pentru acest capitol"]')?.value || '';
 
-        return {
+        const baseChapter = {
           id: ch.id,
           title: ch.title,
           responsible: responsibleSelect?.value || '',
@@ -8212,6 +8375,30 @@ function saveChaptersConfig() {
           })),
           generalObs
         };
+
+        if (ch.id === 'car') {
+          baseChapter.vehicleAudits = [...section.querySelectorAll('.vehicle-audit-panel')].map(panel => {
+            const panelFields = [...panel.querySelectorAll(`input[data-field="${ch.id}"]`)];
+            const panelQuestions = [...panel.querySelectorAll('.check-row')];
+            return {
+              title: panel.querySelector('.vehicle-audit-head h4')?.innerText || 'Autoturism',
+              fields: panelFields.map(input => ({
+                label: input.closest('.field-box, div')?.querySelector('label')?.innerText || '',
+                value: input.value || ''
+              })),
+              questions: panelQuestions.map(row => ({
+                label: row.querySelector('.question')?.innerText || '',
+                answer: row.querySelector('select')?.value === 'bad' ? 'Nu' : 'Da',
+                risk: row.querySelectorAll('select')[1]?.value || '',
+                observation: row.querySelector('[data-corrective-observation]')?.value || '',
+                correctiveAction: row.querySelector('[data-corrective-action]')?.value || '',
+                nonconform: isAnswerNonconform(row)
+              }))
+            };
+          });
+        }
+
+        return baseChapter;
       }).filter(Boolean);
 
       return {
@@ -8274,21 +8461,34 @@ function saveChaptersConfig() {
           ? `<div class="line"><span>Responsabil</span><strong>${escapeHtml(ch.responsible)}</strong></div>`
           : '';
 
-        const fieldsHtml = ch.fields.map(f => `
-          <div class="line">
-            <span>${escapeHtml(f.label)}</span>
-            <strong>${escapeHtml(f.value)}</strong>
-          </div>
-        `).join('');
-
-        const questionsHtml = ch.questions.map(q => `
+        const renderQuestionLine = q => `
           <div class="line ${q.nonconform ? 'nonconform-line' : ''}">
             <span>${escapeHtml(q.label)}</span>
             <strong>${escapeHtml(q.answer)}${q.nonconform ? ' · Neconform' : ''}</strong>
           </div>
           ${q.observation ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Observații:</b><br>${escapeHtml(q.observation)}</div>` : ''}
           ${q.correctiveAction ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Acțiune corectivă:</b><br>${escapeHtml(q.correctiveAction)}</div>` : ''}
+        `;
+
+        const fieldsHtml = ch.vehicleAudits?.length ? ch.vehicleAudits.map(vehicle => `
+          <div class="vehicle-pdf">
+            <h4>${escapeHtml(vehicle.title)}</h4>
+            ${vehicle.fields.map(f => `
+              <div class="line">
+                <span>${escapeHtml(f.label)}</span>
+                <strong>${escapeHtml(f.value)}</strong>
+              </div>
+            `).join('')}
+            ${vehicle.questions.map(renderQuestionLine).join('')}
+          </div>
+        `).join('') : ch.fields.map(f => `
+          <div class="line">
+            <span>${escapeHtml(f.label)}</span>
+            <strong>${escapeHtml(f.value)}</strong>
+          </div>
         `).join('');
+
+        const questionsHtml = ch.vehicleAudits?.length ? '' : ch.questions.map(renderQuestionLine).join('');
 
         const generalObsHtml = ch.generalObs
           ? `<div class="observation"><b>Observații generale:</b><br>${escapeHtml(ch.generalObs)}</div>`
@@ -8306,11 +8506,16 @@ function saveChaptersConfig() {
       }).join('');
 
 
-      const nonconformities = data.chapters.flatMap(ch =>
-        ch.questions
+      const nonconformities = data.chapters.flatMap(ch => {
+        if (ch.vehicleAudits?.length) {
+          return ch.vehicleAudits.flatMap(vehicle => vehicle.questions
+            .filter(q => q.nonconform)
+            .map(q => ({ chapter: `${ch.title} · ${vehicle.title}`, label: q.label, risk: q.risk, observation: q.observation })));
+        }
+        return ch.questions
           .filter(q => q.nonconform)
-          .map(q => ({ chapter: ch.title, label: q.label, risk: q.risk, observation: q.observation }))
-      );
+          .map(q => ({ chapter: ch.title, label: q.label, risk: q.risk, observation: q.observation }));
+      });
 
       const nonconformitiesHtml = nonconformities.length ? `
         <section class="chapter nonconform-summary">
