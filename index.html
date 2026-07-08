@@ -5456,7 +5456,7 @@
 
           <div class="card span-12">
             <div class="section-title">
-              <div><h3>Rezultate pe depozit</h3><p>Lista folosește auditurile salvate și filtrul ales mai sus.</p></div>
+              <div><h3>Rezultate pe depozit</h3><p>Ultimele 10 audituri efectuate, cel mai nou primul.</p></div>
             </div>
             <div id="dashboardDepotResults" class="dashboard-results"></div>
           </div>
@@ -7013,40 +7013,46 @@ applyPreviousActionMarkers();
       if (!box) return;
       const selected = getSelectedDashboardDepot();
       const source = selected === '__all__' ? history : getDashboardFilteredHistory(history);
-      if (!source.length) {
+      const latestAudits = source
+        .slice()
+        .sort((a, b) => new Date(b.savedAt || b.date || 0) - new Date(a.savedAt || a.date || 0))
+        .slice(0, 10);
+
+      if (!latestAudits.length) {
         box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există audituri salvate pentru selecția curentă.</p>';
         return;
       }
 
-      const grouped = new Map();
-      source.forEach(item => {
+      box.innerHTML = latestAudits.map(item => {
         const depot = item.depot || 'Depozit nesetat';
-        if (!grouped.has(depot)) grouped.set(depot, []);
-        grouped.get(depot).push(item);
-      });
-
-      const rows = [...grouped.entries()].map(([depot, items]) => {
-        const audits = items.length;
-        const avg = audits ? Math.round(items.reduce((sum, item) => sum + Number(item.score || 0), 0) / audits) : 0;
-        const issues = items.reduce((sum, item) => sum + getActiveIssuesFromRecord(item).length, 0);
-        const latest = items.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
-        return { depot, audits, avg, issues, latest };
-      }).sort((a, b) => b.audits - a.audits || a.depot.localeCompare(b.depot, 'ro'));
-
-      box.innerHTML = rows.map(row => {
-        const riskClass = row.avg >= 90 ? 'risk-low' : row.avg >= 75 ? 'risk-mid' : 'risk-high';
-        const latest = row.latest ? new Date(row.latest).toLocaleDateString('ro-RO') : 'Nesalvat';
+        const score = Math.round(Number(item.score || 0));
+        const riskClass = score >= 90 ? 'risk-low' : score >= 75 ? 'risk-mid' : 'risk-high';
+        const savedAt = item.savedAt || item.date || '';
+        const dateText = savedAt ? new Date(savedAt).toLocaleString('ro-RO') : 'Nesalvat';
+        const period = item.period || item.auditPeriod || buildAuditPeriodText(item) || '';
+        const issues = getActiveIssuesFromRecord(item).length;
+        const auditId = item.id || item.auditId || item.savedAt || '';
         return `
-          <div class="dashboard-result-row clickable-row" onclick="openDepotAudits('${escapeAttr(row.depot)}')" title="Deschide auditurile pentru acest depozit">
-            <strong>${escapeHtml(row.depot)}</strong>
-            <span class="${riskClass}">${row.avg}%</span>
-            <small>${row.audits} audituri</small>
-            <small>${row.issues} acțiuni · ${escapeHtml(latest)}</small>
+          <div class="dashboard-result-row clickable-row" onclick="openHistoryAuditFromDashboard('${escapeAttr(auditId)}','${escapeAttr(depot)}')" title="Deschide auditul">
+            <strong>${escapeHtml(depot)}</strong>
+            <span class="${riskClass}">${score}%</span>
+            <small>${escapeHtml(dateText)}</small>
+            <small>${issues} acțiuni${period ? ' · ' + escapeHtml(period) : ''}</small>
           </div>
         `;
       }).join('');
     }
 
+    function openHistoryAuditFromDashboard(auditId, depot) {
+      setSectionDepotFilter('history', depot || getSelectedDashboardDepot());
+      goPage('history');
+      setTimeout(() => {
+        if (!auditId) return;
+        const buttons = Array.from(document.querySelectorAll('#historyList button, #historyList .mini-btn, #historyList .icon-btn'));
+        const target = buttons.find(btn => (btn.getAttribute('onclick') || '').includes(auditId));
+        if (target) target.click();
+      }, 80);
+    }
 
     function openDashboardIssues() {
       setSectionDepotFilter('issues', getSelectedDashboardDepot());
