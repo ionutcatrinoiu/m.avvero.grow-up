@@ -1566,7 +1566,7 @@
       place-items: center;
       background:
         radial-gradient(circle at center, #fff 0 58%, transparent 59%),
-        conic-gradient(var(--dashboard-color, var(--primary)) var(--dashboard-score, 0%), #edf2f7 0);
+        conic-gradient(var(--primary) var(--dashboard-score, 0%), #edf2f7 0);
       box-shadow: 0 22px 46px rgba(22,93,255,.12);
     }
 
@@ -1661,16 +1661,6 @@
     .chapter-score-fill.low-score,
     .progress.low-score {
       background: var(--red) !important;
-    }
-
-    .chapter-score-fill.mid-score,
-    .progress.mid-score {
-      background: var(--orange) !important;
-    }
-
-    .chapter-score-fill.good-score,
-    .progress.good-score {
-      background: var(--primary) !important;
     }
 
     @media (max-width: 980px) {
@@ -6767,6 +6757,7 @@ applyPreviousActionMarkers();
     let applyingRemoteState = false;
     let pendingCloudTimer = null;
     let lastLocalWrite = 0;
+    let lastRemoteStateUpdatedAt = 0;
     let historyRemoteReady = false;
 
     function canUseFirebase() {
@@ -6831,11 +6822,13 @@ applyPreviousActionMarkers();
           if (!snapshot.exists) return;
           const data = snapshot.data();
           if (!data) return;
-          if (Array.isArray(data.history)) {
+          if (Array.isArray(data.history) && !historyRemoteReady) {
             mergeAuditHistory(data.history);
           }
           if (!data.state) return;
-          if (data.updatedAt && data.updatedAt <= lastLocalWrite) return;
+          const remoteUpdatedAt = Number(data.updatedAt || 0);
+          if (remoteUpdatedAt && remoteUpdatedAt <= lastRemoteStateUpdatedAt) return;
+          lastRemoteStateUpdatedAt = remoteUpdatedAt || Date.now();
 
           applyingRemoteState = true;
           if (Array.isArray(data.chaptersConfig)) {
@@ -6858,7 +6851,7 @@ applyPreviousActionMarkers();
             const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             historyRemoteReady = true;
             applyingRemoteState = true;
-            mergeAuditHistory(history);
+            replaceAuditHistory(history);
             applyingRemoteState = false;
             setSyncStatus('Istoric sincronizat', true);
           }, error => {
@@ -6883,6 +6876,7 @@ applyPreviousActionMarkers();
         const state = captureAuditContentState();
         const history = getAuditHistory();
         lastLocalWrite = Date.now();
+        lastRemoteStateUpdatedAt = Math.max(lastRemoteStateUpdatedAt, lastLocalWrite);
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).set({
           state,
           history,
@@ -6917,7 +6911,9 @@ applyPreviousActionMarkers();
       [...getAuditHistory(), ...(Array.isArray(remoteHistory) ? remoteHistory : [])].forEach(item => {
         if (!item || !item.id) return;
         const existing = map.get(item.id);
-        if (!existing || new Date(item.savedAt || 0) >= new Date(existing.savedAt || 0)) map.set(item.id, item);
+        const itemTime = new Date(item.updatedAt || item.savedAt || 0).getTime();
+        const existingTime = new Date(existing?.updatedAt || existing?.savedAt || 0).getTime();
+        if (!existing || itemTime >= existingTime) map.set(item.id, item);
       });
       const merged = normalizeAuditHistory([...map.values()]);
       localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(merged));
@@ -7305,14 +7301,6 @@ applyPreviousActionMarkers();
       renderIssues(false);
     }
 
-
-    function getDashboardScoreTone(score) {
-      const value = Number(score || 0);
-      if (value < 85) return { color: 'var(--red)', className: 'low-score', riskClass: 'risk-high' };
-      if (value < 95) return { color: 'var(--orange)', className: 'mid-score', riskClass: 'risk-mid' };
-      return { color: 'var(--primary)', className: 'good-score', riskClass: 'risk-low' };
-    }
-
     function renderDashboardStats(updateOptions = true) {
       const history = getAuditHistory();
       if (updateOptions) updateDashboardDepotOptions(history);
@@ -7335,11 +7323,7 @@ applyPreviousActionMarkers();
       if (scoreEl) scoreEl.innerText = avg + '%';
       if (issuesEl) issuesEl.innerText = activeIssues.length;
       updateIssueNavigationCount(activeIssues.length);
-      const scoreTone = getDashboardScoreTone(avg);
-      if (ringEl) {
-        ringEl.style.setProperty('--dashboard-score', avg + '%');
-        ringEl.style.setProperty('--dashboard-color', scoreTone.color);
-      }
+      if (ringEl) ringEl.style.setProperty('--dashboard-score', avg + '%');
       if (ringLabel) ringLabel.innerText = avg + '%';
       if (miniMeta) miniMeta.innerHTML = `<span>${filteredHistory.length} audituri</span><span>${activeIssues.length} acțiuni deschise</span>`;
       if (lastEl) lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
@@ -7373,14 +7357,14 @@ applyPreviousActionMarkers();
 
       box.innerHTML = scored.map(item => {
         const score = item.score;
-        const scoreTone = getDashboardScoreTone(score);
+        const riskClass = score >= 90 ? 'risk-low' : score >= 75 ? 'risk-mid' : 'risk-high';
         return `
           <div class="chapter-score-card" title="${escapeAttr(item.title)}">
             <div class="chapter-score-head">
               <span>${escapeHtml(item.title)}</span>
-              <span class="${scoreTone.riskClass}">${score}%</span>
+              <span class="${riskClass}">${score}%</span>
             </div>
-            <div class="chapter-score-track"><div class="chapter-score-fill ${scoreTone.className}" style="width:${score}%"></div></div>
+            <div class="chapter-score-track"><div class="chapter-score-fill ${score < 85 ? 'low-score' : ''}" style="width:${score}%"></div></div>
           </div>
         `;
       }).join('');
@@ -7411,7 +7395,7 @@ applyPreviousActionMarkers();
       const readHistory = query => query.get().then(snapshot => {
         const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         applyingRemoteState = true;
-        mergeAuditHistory(history);
+        replaceAuditHistory(history);
         applyingRemoteState = false;
         return history;
       });
@@ -7426,6 +7410,38 @@ applyPreviousActionMarkers();
             return [];
           }).catch(() => []);
         });
+    }
+
+    function refreshCloudCurrentState() {
+      if (!cloudReady || !cloudDb) return Promise.resolve();
+      return cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).get().then(snapshot => {
+        if (!snapshot.exists) return null;
+        const data = snapshot.data() || {};
+        if (Array.isArray(data.history) && !historyRemoteReady) mergeAuditHistory(data.history);
+        if (!data.state) return data;
+        const remoteUpdatedAt = Number(data.updatedAt || 0);
+        if (remoteUpdatedAt && remoteUpdatedAt <= lastRemoteStateUpdatedAt) return data;
+        lastRemoteStateUpdatedAt = remoteUpdatedAt || Date.now();
+        applyingRemoteState = true;
+        if (Array.isArray(data.chaptersConfig)) {
+          chapters = data.chaptersConfig;
+          persistChaptersLocal();
+          renderSections();
+        }
+        restoreAuditContentState(data.state);
+        applyingRemoteState = false;
+        renderDashboardStats();
+        renderHistory();
+        renderIssues(false);
+        return data;
+      }).catch(error => {
+        console.warn('Starea cloud nu a putut fi reîmprospătată.', error);
+        return null;
+      });
+    }
+
+    function refreshCloudData() {
+      return Promise.all([refreshCloudHistory(), refreshCloudCurrentState()]);
     }
 
     function getIssuesFromRecord(record) {
@@ -8124,7 +8140,7 @@ function saveChaptersConfig() {
         .map(s => `
         <div style="margin-bottom:14px">
           <div style="display:flex;justify-content:space-between;font-weight:800"><span>${s.title}</span><span>${s.score}%</span></div>
-          <div class="progress-wrap"><div class="progress ${getDashboardScoreTone(s.score).className}" style="width:${s.score}%"></div></div>
+          <div class="progress-wrap"><div class="progress ${s.score < 85 ? 'low-score' : ''}" style="width:${s.score}%"></div></div>
         </div>
       `).join('');
 
@@ -9134,11 +9150,11 @@ function saveChaptersConfig() {
     renderHistory();
     renderDashboardStats();
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) refreshCloudHistory();
+      if (!document.hidden) refreshCloudData();
     });
 
-    window.addEventListener('focus', () => refreshCloudHistory());
-    setInterval(() => refreshCloudHistory(), 15000);
+    window.addEventListener('focus', () => refreshCloudData());
+    setInterval(() => refreshCloudData(), 15000);
 
     initCloudSync();
     fillColleagueSelects();
