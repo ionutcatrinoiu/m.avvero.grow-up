@@ -1384,9 +1384,41 @@
 
     .dashboard-filter-card {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 280px;
+      grid-template-columns: 1fr;
       gap: 14px;
-      align-items: end;
+      align-items: start;
+    }
+
+    .depot-chip-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .depot-chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      color: #344054;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+
+    .depot-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .depot-chip.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(22,93,255,.18);
     }
 
     .dashboard-results {
@@ -4960,15 +4992,11 @@
             <div class="section-title" style="margin:0">
               <div>
                 <h3>Filtru rezultate</h3>
-                <p>Alege un depozit pentru statistici dedicate sau vezi toate depozitele împreună.</p>
+                <p>Selectează rapid toate depozitele sau un depozit anume.</p>
               </div>
             </div>
-            <div>
-              <label>Depozit</label>
-              <select id="dashboardDepotFilter" onchange="renderDashboardStats()">
-                <option value="__all__">Toate depozitele</option>
-              </select>
-            </div>
+            <input type="hidden" id="dashboardDepotFilter" value="__all__">
+            <div id="dashboardDepotChips" class="depot-chip-list"></div>
           </div>
 
           <div class="card span-4 metric"><div><span>Scor general</span><br><strong id="scoreTotal">100%</strong></div><span class="pill">Live</span></div>
@@ -6243,7 +6271,11 @@ recalc();
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).onSnapshot(snapshot => {
           if (!snapshot.exists) return;
           const data = snapshot.data();
-          if (!data || !data.state) return;
+          if (!data) return;
+          if (Array.isArray(data.history)) {
+            mergeAuditHistory(data.history);
+          }
+          if (!data.state) return;
           if (data.updatedAt && data.updatedAt <= lastLocalWrite) return;
 
           applyingRemoteState = true;
@@ -6253,9 +6285,6 @@ recalc();
             renderSections();
           }
           restoreAuditContentState(data.state);
-          if (Array.isArray(data.history)) {
-            mergeAuditHistory(data.history);
-          }
           applyingRemoteState = false;
           setSyncStatus('Actualizat live', true);
         }, error => {
@@ -6373,17 +6402,30 @@ recalc();
       return select ? select.value : '__all__';
     }
 
+    function setDashboardDepotFilter(value) {
+      const input = document.getElementById('dashboardDepotFilter');
+      if (input) input.value = value || '__all__';
+      renderDashboardStats(false);
+    }
+
+    function escapeAttr(value) {
+      return String(value || '').replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function updateDashboardDepotOptions(history) {
-      const select = document.getElementById('dashboardDepotFilter');
-      if (!select) return;
-      const current = select.value || '__all__';
+      const input = document.getElementById('dashboardDepotFilter');
+      const chips = document.getElementById('dashboardDepotChips');
+      if (!input || !chips) return;
+      const current = input.value || '__all__';
       const depots = [...new Set((history || []).map(item => item.depot || 'Depozit nesetat'))]
         .sort((a, b) => a.localeCompare(b, 'ro'));
-      select.innerHTML = '<option value="__all__">Toate depozitele</option>' + depots.map(depot => {
-        const selected = depot === current ? ' selected' : '';
-        return `<option value="${escapeHtml(depot)}"${selected}>${escapeHtml(depot)}</option>`;
+      if (current !== '__all__' && !depots.includes(current)) input.value = '__all__';
+      const active = input.value || '__all__';
+      const allClass = active === '__all__' ? ' active' : '';
+      chips.innerHTML = `<button type="button" class="depot-chip${allClass}" onclick="setDashboardDepotFilter('__all__')">Toate depozitele</button>` + depots.map(depot => {
+        const cls = depot === active ? ' active' : '';
+        return `<button type="button" class="depot-chip${cls}" onclick="setDashboardDepotFilter('${escapeAttr(depot)}')">${escapeHtml(depot)}</button>`;
       }).join('');
-      if (current !== '__all__' && !depots.includes(current)) select.value = '__all__';
     }
 
     function getDashboardFilteredHistory(history) {
@@ -6412,7 +6454,7 @@ recalc();
       const rows = [...grouped.entries()].map(([depot, items]) => {
         const audits = items.length;
         const avg = audits ? Math.round(items.reduce((sum, item) => sum + Number(item.score || 0), 0) / audits) : 0;
-        const issues = items.reduce((sum, item) => sum + (Array.isArray(item.issues) ? item.issues.length : 0), 0);
+        const issues = items.reduce((sum, item) => sum + getIssuesFromRecord(item).length, 0);
         const latest = items.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
         return { depot, audits, avg, issues, latest };
       }).sort((a, b) => b.audits - a.audits || a.depot.localeCompare(b.depot, 'ro'));
@@ -6431,23 +6473,54 @@ recalc();
       }).join('');
     }
 
-    function renderDashboardStats() {
+    function renderDashboardStats(updateOptions = true) {
       const history = getAuditHistory();
-      updateDashboardDepotOptions(history);
+      if (updateOptions) updateDashboardDepotOptions(history);
       const filteredHistory = getDashboardFilteredHistory(history);
       const savedEl = document.getElementById('savedAuditsCount');
       const avgEl = document.getElementById('avgHistoryScore');
       const lastEl = document.getElementById('lastAuditDate');
+      const scoreEl = document.getElementById('scoreTotal');
+      const issuesEl = document.getElementById('issueCount');
+      const activeEl = document.getElementById('activeSections');
+
+      const avg = filteredHistory.length ? Math.round(filteredHistory.reduce((sum, item) => sum + Number(item.score || 0), 0) / filteredHistory.length) : 0;
+      const allIssues = filteredHistory.flatMap(getIssuesFromRecord);
+
       if (savedEl) savedEl.innerText = filteredHistory.length;
-      if (avgEl) {
-        const avg = filteredHistory.length ? Math.round(filteredHistory.reduce((sum, item) => sum + Number(item.score || 0), 0) / filteredHistory.length) : 0;
-        avgEl.innerText = avg + '%';
-      }
+      if (avgEl) avgEl.innerText = avg + '%';
+      if (scoreEl && filteredHistory.length) scoreEl.innerText = avg + '%';
+      if (issuesEl && filteredHistory.length) issuesEl.innerText = allIssues.length;
+      if (activeEl && filteredHistory.length) activeEl.innerText = chapters.filter(isActiveChapter).length;
       if (lastEl) {
-        const latest = filteredHistory[0]?.savedAt;
+        const latest = filteredHistory.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
         lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
       }
+
+      renderDashboardChapterScores(filteredHistory);
       renderDashboardDepotResults(history);
+    }
+
+    function renderDashboardChapterScores(filteredHistory) {
+      const box = document.getElementById('chapterScores');
+      if (!box || !filteredHistory.length) return;
+      const grouped = new Map();
+      filteredHistory.forEach(record => {
+        getChapterScoresFromRecord(record).forEach(item => {
+          if (!grouped.has(item.id)) grouped.set(item.id, { title: item.title, scores: [] });
+          grouped.get(item.id).scores.push(item.score);
+        });
+      });
+      if (!grouped.size) return;
+      box.innerHTML = [...grouped.values()].map(item => {
+        const score = Math.round(item.scores.reduce((sum, value) => sum + value, 0) / item.scores.length);
+        return `
+          <div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;font-weight:800"><span>${escapeHtml(item.title)}</span><span>${score}%</span></div>
+            <div class="progress-wrap"><div class="progress" style="width:${score}%"></div></div>
+          </div>
+        `;
+      }).join('');
     }
 
     function saveAuditRecordToCloud(record) {
@@ -6472,20 +6545,61 @@ recalc();
 
     function refreshCloudHistory() {
       if (!cloudReady || !cloudDb) return Promise.resolve();
-      return cloudDb.collection(AUDIT_HISTORY_COLLECTION)
-        .orderBy('savedAt', 'desc')
-        .limit(100)
-        .get()
-        .then(snapshot => {
-          const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          applyingRemoteState = true;
-          mergeAuditHistory(history);
-          applyingRemoteState = false;
-          return history;
-        })
+      const readHistory = query => query.get().then(snapshot => {
+        const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        applyingRemoteState = true;
+        mergeAuditHistory(history);
+        applyingRemoteState = false;
+        return history;
+      });
+
+      return readHistory(cloudDb.collection(AUDIT_HISTORY_COLLECTION).orderBy('savedAt', 'desc').limit(100))
+        .catch(() => readHistory(cloudDb.collection(AUDIT_HISTORY_COLLECTION).limit(100)))
         .catch(error => {
           console.warn('Istoricul cloud nu a putut fi reîmprospătat.', error);
+          return cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).get().then(snapshot => {
+            const data = snapshot.exists ? snapshot.data() : null;
+            if (data && Array.isArray(data.history)) return mergeAuditHistory(data.history);
+            return [];
+          }).catch(() => []);
         });
+    }
+
+    function getIssuesFromRecord(record) {
+      if (Array.isArray(record?.issues) && record.issues.length) return record.issues;
+      const state = record?.state;
+      if (!state || !state.chapters) return [];
+      const issues = [];
+      Object.entries(state.chapters).forEach(([chapterId, chapterState]) => {
+        const chapter = chapters.find(ch => ch.id === chapterId);
+        Object.entries(chapterState.questions || {}).forEach(([question, qState]) => {
+          if (!qState || !qState.nonconform) return;
+          issues.push({
+            chapter: chapter?.title || chapterId,
+            question: String(question).replace(/##\d+$/, ''),
+            risk: qState.risk || 'Risc scăzut',
+            observation: qState.observation || '',
+            status: 'Deschis'
+          });
+        });
+      });
+      return issues;
+    }
+
+    function getChapterScoresFromRecord(record) {
+      const state = record?.state;
+      if (!state || !state.chapters) return [];
+      return Object.entries(state.chapters).map(([chapterId, chapterState]) => {
+        const chapter = chapters.find(ch => ch.id === chapterId);
+        const questions = Object.values(chapterState.questions || {});
+        const total = questions.length;
+        const bad = questions.filter(q => q && q.nonconform).length;
+        return {
+          id: chapterId,
+          title: chapter?.title || chapterId,
+          score: total ? Math.round(((total - bad) / total) * 100) : 100
+        };
+      });
     }
 
     function getCurrentIssues() {
@@ -6578,6 +6692,7 @@ recalc();
         score: data.score,
         status: data.status,
         issues: getCurrentIssues(),
+        chapterScores: getChapterScoresFromRecord({ state }),
         state
       };
 
@@ -6620,7 +6735,7 @@ recalc();
             <strong>${escapeHtml(item.depot)}</strong>
             <span class="${riskClass}">${item.score}%</span>
             <span>${escapeHtml(date)}</span>
-            <small>${escapeHtml(item.periodStart || '')} - ${escapeHtml(item.periodEnd || '')} · ${item.issues?.length || 0} acțiuni</small>
+            <small>${escapeHtml(item.periodStart || '')} - ${escapeHtml(item.periodEnd || '')} · ${getIssuesFromRecord(item).length} acțiuni</small>
             <div class="history-actions">
               <button class="mini-btn" type="button" onclick="loadAuditFromHistory('${item.id}')">Deschide</button>
               <button class="mini-btn" type="button" onclick="deleteAuditFromHistory('${item.id}')">Șterge</button>
@@ -7854,6 +7969,7 @@ function saveChaptersConfig() {
     });
 
     window.addEventListener('focus', () => refreshCloudHistory());
+    setInterval(() => refreshCloudHistory(), 15000);
 
     initCloudSync();
     fillColleagueSelects();
