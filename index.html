@@ -1381,6 +1381,39 @@
       .history-actions .mini-btn { flex: 1; }
     }
 
+
+    .dashboard-filter-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .dashboard-results {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dashboard-result-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) 110px 110px 150px;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dashboard-result-row:last-child { border-bottom: 0; }
+
+    .dashboard-result-row small { color: var(--muted); }
+
+    @media (max-width: 980px) {
+      .dashboard-filter-card,
+      .dashboard-result-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 980px) {
@@ -4923,6 +4956,21 @@
         </div>
 
         <div class="grid">
+          <div class="card span-12 dashboard-filter-card">
+            <div class="section-title" style="margin:0">
+              <div>
+                <h3>Filtru rezultate</h3>
+                <p>Alege un depozit pentru statistici dedicate sau vezi toate depozitele împreună.</p>
+              </div>
+            </div>
+            <div>
+              <label>Depozit</label>
+              <select id="dashboardDepotFilter" onchange="renderDashboardStats()">
+                <option value="__all__">Toate depozitele</option>
+              </select>
+            </div>
+          </div>
+
           <div class="card span-4 metric"><div><span>Scor general</span><br><strong id="scoreTotal">100%</strong></div><span class="pill">Live</span></div>
           <div class="card span-4 metric"><div><span>Neconformități</span><br><strong id="issueCount">0</strong></div><span class="pill">Auto</span></div>
           <div class="card span-4 metric"><div><span>Secțiuni active</span><br><strong id="activeSections">0</strong></div><span class="pill">Filtrat</span></div>
@@ -4935,6 +4983,13 @@
               <div><h3>Scor pe capitole</h3><p>Scorul se actualizează după răspunsurile tale.</p></div>
             </div>
             <div id="chapterScores"></div>
+          </div>
+
+          <div class="card span-12">
+            <div class="section-title">
+              <div><h3>Rezultate pe depozit</h3><p>Lista folosește auditurile salvate și filtrul ales mai sus.</p></div>
+            </div>
+            <div id="dashboardDepotResults" class="dashboard-results"></div>
           </div>
 
           <div class="card span-4">
@@ -6171,13 +6226,19 @@ recalc();
       try {
         if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
 
+        let authOk = false;
         if (firebase.auth) {
-          await firebase.auth().signInAnonymously();
+          try {
+            await firebase.auth().signInAnonymously();
+            authOk = true;
+          } catch (authError) {
+            console.warn('Authentication anonim nu este activ sau domeniul nu este autorizat.', authError);
+          }
         }
 
         cloudDb = firebase.firestore();
         cloudReady = true;
-        setSyncStatus('Live sync activ', true);
+        setSyncStatus(authOk ? 'Live sync activ' : 'Live sync activ fără Authentication', true);
 
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).onSnapshot(snapshot => {
           if (!snapshot.exists) return;
@@ -6192,9 +6253,8 @@ recalc();
             renderSections();
           }
           restoreAuditContentState(data.state);
-          if (Array.isArray(data.history) && !historyRemoteReady) {
-            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(data.history));
-            renderHistory();
+          if (Array.isArray(data.history)) {
+            mergeAuditHistory(data.history);
           }
           applyingRemoteState = false;
           setSyncStatus('Actualizat live', true);
@@ -6210,9 +6270,7 @@ recalc();
             const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             historyRemoteReady = true;
             applyingRemoteState = true;
-            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(history));
-            renderHistory();
-            renderDashboardStats();
+            mergeAuditHistory(history);
             applyingRemoteState = false;
             setSyncStatus('Istoric sincronizat', true);
           }, error => {
@@ -6221,7 +6279,7 @@ recalc();
           });
       } catch (error) {
         console.warn('Firebase nu a putut fi inițializat.', error);
-        setSyncStatus('Live sync inactiv. Verifică Authentication.', true);
+        setSyncStatus('Live sync inactiv. Verifică Firebase.', true);
       }
     }
 
@@ -6258,10 +6316,41 @@ recalc();
       }
     }
 
+    function normalizeAuditHistory(history) {
+      return (Array.isArray(history) ? history : [])
+        .filter(item => item && item.id)
+        .sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))
+        .slice(0, 100);
+    }
+
+    function mergeAuditHistory(remoteHistory, shouldRender = true) {
+      const map = new Map();
+      [...getAuditHistory(), ...(Array.isArray(remoteHistory) ? remoteHistory : [])].forEach(item => {
+        if (!item || !item.id) return;
+        const existing = map.get(item.id);
+        if (!existing || new Date(item.savedAt || 0) >= new Date(existing.savedAt || 0)) map.set(item.id, item);
+      });
+      const merged = normalizeAuditHistory([...map.values()]);
+      localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(merged));
+      if (shouldRender) {
+        renderHistory();
+        renderDashboardStats();
+      }
+      return merged;
+    }
+
+    function replaceAuditHistory(history, shouldRender = true) {
+      const normalized = normalizeAuditHistory(history);
+      localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(normalized));
+      if (shouldRender) {
+        renderHistory();
+        renderDashboardStats();
+      }
+      return normalized;
+    }
+
     function setAuditHistory(history) {
-      localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(history));
-      renderHistory();
-      renderDashboardStats();
+      replaceAuditHistory(history);
       scheduleCloudSave();
     }
 
@@ -6279,20 +6368,86 @@ recalc();
       };
     }
 
+    function getSelectedDashboardDepot() {
+      const select = document.getElementById('dashboardDepotFilter');
+      return select ? select.value : '__all__';
+    }
+
+    function updateDashboardDepotOptions(history) {
+      const select = document.getElementById('dashboardDepotFilter');
+      if (!select) return;
+      const current = select.value || '__all__';
+      const depots = [...new Set((history || []).map(item => item.depot || 'Depozit nesetat'))]
+        .sort((a, b) => a.localeCompare(b, 'ro'));
+      select.innerHTML = '<option value="__all__">Toate depozitele</option>' + depots.map(depot => {
+        const selected = depot === current ? ' selected' : '';
+        return `<option value="${escapeHtml(depot)}"${selected}>${escapeHtml(depot)}</option>`;
+      }).join('');
+      if (current !== '__all__' && !depots.includes(current)) select.value = '__all__';
+    }
+
+    function getDashboardFilteredHistory(history) {
+      const selected = getSelectedDashboardDepot();
+      if (selected === '__all__') return history;
+      return history.filter(item => (item.depot || 'Depozit nesetat') === selected);
+    }
+
+    function renderDashboardDepotResults(history) {
+      const box = document.getElementById('dashboardDepotResults');
+      if (!box) return;
+      const selected = getSelectedDashboardDepot();
+      const source = selected === '__all__' ? history : getDashboardFilteredHistory(history);
+      if (!source.length) {
+        box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există audituri salvate pentru selecția curentă.</p>';
+        return;
+      }
+
+      const grouped = new Map();
+      source.forEach(item => {
+        const depot = item.depot || 'Depozit nesetat';
+        if (!grouped.has(depot)) grouped.set(depot, []);
+        grouped.get(depot).push(item);
+      });
+
+      const rows = [...grouped.entries()].map(([depot, items]) => {
+        const audits = items.length;
+        const avg = audits ? Math.round(items.reduce((sum, item) => sum + Number(item.score || 0), 0) / audits) : 0;
+        const issues = items.reduce((sum, item) => sum + (Array.isArray(item.issues) ? item.issues.length : 0), 0);
+        const latest = items.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
+        return { depot, audits, avg, issues, latest };
+      }).sort((a, b) => b.audits - a.audits || a.depot.localeCompare(b.depot, 'ro'));
+
+      box.innerHTML = rows.map(row => {
+        const riskClass = row.avg >= 90 ? 'risk-low' : row.avg >= 75 ? 'risk-mid' : 'risk-high';
+        const latest = row.latest ? new Date(row.latest).toLocaleDateString('ro-RO') : 'Nesalvat';
+        return `
+          <div class="dashboard-result-row">
+            <strong>${escapeHtml(row.depot)}</strong>
+            <span class="${riskClass}">${row.avg}%</span>
+            <small>${row.audits} audituri</small>
+            <small>${row.issues} acțiuni · ${escapeHtml(latest)}</small>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderDashboardStats() {
       const history = getAuditHistory();
+      updateDashboardDepotOptions(history);
+      const filteredHistory = getDashboardFilteredHistory(history);
       const savedEl = document.getElementById('savedAuditsCount');
       const avgEl = document.getElementById('avgHistoryScore');
       const lastEl = document.getElementById('lastAuditDate');
-      if (savedEl) savedEl.innerText = history.length;
+      if (savedEl) savedEl.innerText = filteredHistory.length;
       if (avgEl) {
-        const avg = history.length ? Math.round(history.reduce((sum, item) => sum + Number(item.score || 0), 0) / history.length) : 0;
+        const avg = filteredHistory.length ? Math.round(filteredHistory.reduce((sum, item) => sum + Number(item.score || 0), 0) / filteredHistory.length) : 0;
         avgEl.innerText = avg + '%';
       }
       if (lastEl) {
-        const latest = history[0]?.savedAt;
+        const latest = filteredHistory[0]?.savedAt;
         lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
       }
+      renderDashboardDepotResults(history);
     }
 
     function saveAuditRecordToCloud(record) {
@@ -6312,6 +6467,24 @@ recalc();
         .catch(error => {
           console.warn('Auditul nu a putut fi șters din cloud.', error);
           setSyncStatus('Șters local', true);
+        });
+    }
+
+    function refreshCloudHistory() {
+      if (!cloudReady || !cloudDb) return Promise.resolve();
+      return cloudDb.collection(AUDIT_HISTORY_COLLECTION)
+        .orderBy('savedAt', 'desc')
+        .limit(100)
+        .get()
+        .then(snapshot => {
+          const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          applyingRemoteState = true;
+          mergeAuditHistory(history);
+          applyingRemoteState = false;
+          return history;
+        })
+        .catch(error => {
+          console.warn('Istoricul cloud nu a putut fi reîmprospătat.', error);
         });
     }
 
@@ -7435,7 +7608,10 @@ function saveChaptersConfig() {
       document.getElementById(id).classList.remove('hidden');
       document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
       if (id === 'issues') renderIssues();
-      if (id === 'history') renderHistory();
+      if (id === 'history') {
+        renderHistory();
+        refreshCloudHistory();
+      }
       if (id === 'dashboard') { recalc(); renderDashboardStats(); }
     }
 
@@ -7673,6 +7849,12 @@ function saveChaptersConfig() {
     renderIssues();
     renderHistory();
     renderDashboardStats();
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshCloudHistory();
+    });
+
+    window.addEventListener('focus', () => refreshCloudHistory());
+
     initCloudSync();
     fillColleagueSelects();
     document.getElementById('employeeDepot').addEventListener('change', updateEmployeeDetails);
