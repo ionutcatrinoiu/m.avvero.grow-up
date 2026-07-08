@@ -7958,6 +7958,20 @@ function saveChaptersConfig() {
     }
 
 
+    function getConformAnswerValue(row) {
+      const select = row?.querySelector('select');
+      const badWhen = select?.dataset.bad || 'no';
+      return badWhen === 'yes' ? 'bad' : 'ok';
+    }
+
+    function setRowToConform(row) {
+      const selects = row?.querySelectorAll('select') || [];
+      if (selects[0]) selects[0].value = getConformAnswerValue(row);
+      if (selects[1]) selects[1].value = 'Fără riscuri';
+      const obs = row?.querySelector('.obs');
+      if (obs) obs.classList.remove('required');
+    }
+
     function isAnswerNonconform(row) {
       const select = row.querySelector('select');
       const badWhen = select?.dataset.bad || 'no';
@@ -8743,9 +8757,7 @@ function saveChaptersConfig() {
 
       document.querySelectorAll('#audit select[data-responsible]').forEach(select => { select.value = ''; });
       document.querySelectorAll('#audit .check-row').forEach(row => {
-        const selects = row.querySelectorAll('select');
-        if (selects[0]) selects[0].value = 'ok';
-        if (selects[1]) selects[1].value = 'Fără riscuri';
+        setRowToConform(row);
         const action = row.querySelector('[data-corrective-action]');
         if (action) action.value = '';
         const due = row.querySelector('[data-corrective-due]');
@@ -8754,8 +8766,6 @@ function saveChaptersConfig() {
         if (priority) priority.value = 'Medie';
         const status = row.querySelector('[data-corrective-status]');
         if (status) status.value = 'Deschis';
-        const obs = row.querySelector('.obs');
-        if (obs) obs.classList.remove('required');
       });
 
       const firstActive = chapters.filter(isActiveChapter)[0]?.id || '';
