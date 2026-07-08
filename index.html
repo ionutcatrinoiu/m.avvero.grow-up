@@ -126,6 +126,7 @@
     .span-8 { grid-column: span 8; }
     .span-6 { grid-column: span 6; }
     .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
 
     .metric {
       display: flex;
@@ -1361,11 +1362,23 @@
 
     .history-card {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 90px 150px auto;
+      grid-template-columns: minmax(160px, 1fr) 180px 90px 170px minmax(190px, 1.1fr);
       gap: 12px;
       padding: 14px 0;
       border-bottom: 1px solid var(--line);
       align-items: center;
+    }
+
+    .history-head {
+      padding-top: 0;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: none;
+    }
+
+    .history-head span {
+      color: #344054;
     }
 
     .history-card:last-child { border-bottom: 0; }
@@ -1415,7 +1428,9 @@
     }
 
     .depot-chip.active {
+      transition: none !important;
       background: var(--primary);
+      transition: none;
       border-color: var(--primary);
       color: #fff;
       box-shadow: 0 10px 24px rgba(22,93,255,.18);
@@ -1446,13 +1461,386 @@
       }
     }
 
+
+    .metric-action {
+      cursor: pointer;
+      font-family: inherit;
+      width: auto;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-action::after,
+    .metric-action::before {
+      content: none !important;
+      display: none !important;
+    }
+
+    .dashboard-visual-card {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .dashboard-ring {
+      min-height: 260px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, #ffffff, #f3f7ff);
+      border: 1px solid rgba(199,215,255,.9);
+      display: grid;
+      place-items: center;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .dashboard-ring-core {
+      width: 202px;
+      height: 202px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at center, #fff 0 58%, transparent 59%),
+        conic-gradient(var(--primary) var(--dashboard-score, 0%), #edf2f7 0);
+      box-shadow: 0 22px 46px rgba(22,93,255,.12);
+    }
+
+    .dashboard-ring-inner {
+      width: 136px;
+      height: 136px;
+      border-radius: 999px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      box-shadow: 0 10px 24px rgba(16,24,40,.08);
+    }
+
+    .dashboard-ring-inner strong {
+      display: block;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -1.5px;
+    }
+
+    .dashboard-ring-inner span {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .dashboard-mini-meta {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .chapter-score-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      padding: 14px;
+      cursor: default;
+    }
+
+    .chapter-score-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .chapter-score-head span:first-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chapter-score-head span:last-child {
+      color: var(--primary);
+    }
+
+    .chapter-score-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #edf2f7;
+      overflow: hidden;
+    }
+
+    .chapter-score-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), var(--orange), var(--green));
+      transition: width .24s ease;
+    }
+
+    @media (max-width: 980px) {
+      .dashboard-visual-card {
+        grid-template-columns: 1fr;
+      }
+
+      .chapter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .dashboard-ring {
+        min-height: 238px;
+      }
+    }
+
+
+
+    .corrective-panel {
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid #d7e3ff;
+      background: #f8fbff;
+      border-radius: 16px;
+    }
+
+    .corrective-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 160px 150px 130px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .corrective-grid label {
+      margin-bottom: 6px;
+    }
+
+    .corrective-grid textarea {
+      min-height: 70px;
+    }
+
+    .issue-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+      margin-bottom: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .issue-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .issue-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .issue-note {
+      color: #344054;
+      font-size: 13px;
+      line-height: 1.45;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    @media (max-width: 980px) {
+      .corrective-grid {
+        grid-template-columns: 1fr;
+      }
+      .issue-card-head {
+        flex-direction: column;
+      }
+    }
+
+
+
+
+    .issue-edit-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 150px 150px 130px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .issue-edit-grid label {
+      margin-bottom: 6px;
+    }
+
+    .issue-edit-grid textarea {
+      min-height: 72px;
+    }
+
+    .dashboard-result-row.clickable-row {
+      cursor: pointer;
+      border-radius: 14px;
+      padding-left: 12px;
+      padding-right: 12px;
+      transition: all .18s ease;
+    }
+
+    .dashboard-result-row.clickable-row:hover {
+      background: var(--primary-soft);
+      border-color: transparent;
+      transform: translateY(-1px);
+    }
+
+
+    .section-filter-card {
+      margin-bottom: 16px;
+    }
+
+    .section-filter-card .depot-chip-list {
+      margin-top: 0;
+    }
+
+    .dashboard-chip-card {
+      padding: 18px 20px;
+    }
+
+    .dashboard-chip-card .depot-chip-list {
+      margin-top: 0;
+    }
+
+    @media (max-width: 980px) {
+      .issue-edit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    .history-card > * {
+      align-self: center;
+    }
+
+    .history-card > :first-child,
+    .history-head > :first-child {
+      justify-self: start;
+      text-align: left;
+    }
+
+    .history-card > :nth-child(n+2),
+    .history-head > :nth-child(n+2) {
+      justify-self: center;
+      text-align: center;
+    }
+
+    .history-card .history-actions {
+      justify-content: center;
+    }
+
+    .issue-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .mini-btn.danger {
+      border-color: #ffd9d6;
+      background: #fff7f6;
+      color: var(--red);
+    }
+
+    .mini-btn.danger:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+
+    .start-audit-btn {
+      min-height: 54px;
+      padding: 15px 24px;
+      border-radius: 18px;
+      font-size: 15px;
+      letter-spacing: -.2px;
+      box-shadow: 0 16px 34px rgba(22, 93, 255, .26);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .start-audit-btn::before {
+      content: "+";
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .start-audit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 42px rgba(22, 93, 255, .34);
+    }
+
+    @media (max-width: 768px) {
+      .topbar .actions .start-audit-btn {
+        width: 100%;
+        min-height: 56px;
+        font-size: 16px !important;
+      }
+    }
+
+
+
+    .previous-action-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .check-row.has-previous-action {
+      border-color: #fed7aa;
+      box-shadow: 0 12px 30px rgba(247,144,9,.10);
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 980px) {
       .app { grid-template-columns: 1fr; }
       aside { position: relative; height: auto; }
       main { padding: 18px; }
-      .span-8, .span-6, .span-4 { grid-column: span 12; }
+      .span-8, .span-6, .span-4, .span-3 { grid-column: span 12; }
       .form-grid { grid-template-columns: 1fr; }
       .check-top { grid-template-columns: 1fr; }
 
@@ -1985,7 +2373,8 @@
       .span-12,
       .span-8,
       .span-6,
-      .span-4 {
+      .span-4,
+      .span-3 {
         grid-column: auto !important;
       }
 
@@ -4968,9 +5357,8 @@
       </div>
       <nav>
         <button type="button" class="active" data-page="dashboard">Dashboard <span>01</span></button>
-        <button type="button" data-page="audit">Audit nou <span>02</span></button>
-        <button type="button" data-page="issues">Acțiuni corective <span>03</span></button>
-        <button type="button" data-page="history">Istoric audituri <span>04</span></button>
+        <button type="button" data-page="issues">Acțiuni corective <span>02</span></button>
+        <button type="button" data-page="history">Istoric audituri <span>03</span></button>
       </nav>
     </aside>
 
@@ -4982,35 +5370,40 @@
             <p>Imagine rapidă asupra conformității, riscurilor și acțiunilor deschise.</p>
           </div>
           <div class="actions">
-            <button class="btn ghost" onclick="goPage('audit')">Începe audit</button>
+            <button class="btn primary start-audit-btn" onclick="goPage('audit')">Începe audit</button>
             
           </div>
         </div>
 
         <div class="grid">
-          <div class="card span-12 dashboard-filter-card">
-            <div class="section-title" style="margin:0">
-              <div>
-                <h3>Filtru rezultate</h3>
-                <p>Selectează rapid toate depozitele sau un depozit anume.</p>
-              </div>
-            </div>
+          <div class="card span-12 dashboard-filter-card dashboard-chip-card">
             <input type="hidden" id="dashboardDepotFilter" value="__all__">
             <div id="dashboardDepotChips" class="depot-chip-list"></div>
           </div>
 
-          <div class="card span-4 metric"><div><span>Scor general</span><br><strong id="scoreTotal">100%</strong></div><span class="pill">Live</span></div>
-          <div class="card span-4 metric"><div><span>Neconformități</span><br><strong id="issueCount">0</strong></div><span class="pill">Auto</span></div>
-          <div class="card span-4 metric"><div><span>Secțiuni active</span><br><strong id="activeSections">0</strong></div><span class="pill">Filtrat</span></div>
-          <div class="card span-4 metric"><div><span>Audituri salvate</span><br><strong id="savedAuditsCount">0</strong></div><span class="pill">Cloud</span></div>
-          <div class="card span-4 metric"><div><span>Scor mediu istoric</span><br><strong id="avgHistoryScore">0%</strong></div><span class="pill">Istoric</span></div>
-          <div class="card span-4 metric"><div><span>Ultimul audit</span><br><strong id="lastAuditDate" style="font-size:18px">Nesalvat</strong></div><span class="pill" id="dashboardSyncPill">Sync</span></div>
+          <div class="card span-3 metric"><div><span>Scor general</span><br><strong id="scoreTotal">100%</strong></div><span class="pill">Live</span></div>
+          <button type="button" class="card span-3 metric metric-action" onclick="openDashboardIssues()"><div><span>Acțiuni corective</span><br><strong id="issueCount">0</strong></div><span class="pill">Deschide</span></button>
+          <button type="button" class="card span-3 metric metric-action" onclick="openDashboardHistory()"><div><span>Audituri salvate</span><br><strong id="savedAuditsCount">0</strong></div><span class="pill">Istoric</span></button>
+          <div class="card span-3 metric"><div><span>Ultimul audit</span><br><strong id="lastAuditDate" style="font-size:18px">Nesalvat</strong></div><span class="pill" id="dashboardSyncPill">Sync</span></div>
 
-          <div class="card span-8">
-            <div class="section-title">
-              <div><h3>Scor pe capitole</h3><p>Scorul se actualizează după răspunsurile tale.</p></div>
+          <div class="card span-12 dashboard-visual-card">
+            <div class="dashboard-ring" id="dashboardScoreRing">
+              <div class="dashboard-ring-core">
+                <div class="dashboard-ring-inner">
+                  <div>
+                    <strong id="dashboardScoreLabel">0%</strong>
+                    <span>scor filtrat</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-mini-meta" id="dashboardMiniMeta"></div>
             </div>
-            <div id="chapterScores"></div>
+            <div>
+              <div class="section-title">
+                <div><h3>Scor pe secțiuni</h3><p>Grafic interactiv după depozitul selectat.</p></div>
+              </div>
+              <div id="chapterScores" class="chapter-grid"></div>
+            </div>
           </div>
 
           <div class="card span-12">
@@ -5018,16 +5411,6 @@
               <div><h3>Rezultate pe depozit</h3><p>Lista folosește auditurile salvate și filtrul ales mai sus.</p></div>
             </div>
             <div id="dashboardDepotResults" class="dashboard-results"></div>
-          </div>
-
-          <div class="card span-4">
-            <div class="section-title">
-              <div><h3>Acțiuni rapide</h3><p>Flux recomandat pentru audit.</p></div>
-            </div>
-            <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="goPage('audit')">Audit nou</button>
-            <button class="btn" style="width:100%;margin-bottom:10px" onclick="goPage('issues')">Vezi probleme</button>
-            <button class="btn" style="width:100%;margin-bottom:10px" onclick="goPage('history')">Vezi istoric</button>
-            <button class="btn" style="width:100%" onclick="resetForm()">Resetează formularul</button>
           </div>
         </div>
       </section>
@@ -5100,6 +5483,10 @@
             <p>Lista se generează automat din răspunsurile neconforme.</p>
           </div>
         </div>
+        <div class="card section-filter-card dashboard-chip-card">
+          <input type="hidden" id="issuesDepotFilter" value="__all__">
+          <div id="issuesDepotChips" class="depot-chip-list"></div>
+        </div>
         <div class="card">
           <div id="issuesList"></div>
         </div>
@@ -5107,6 +5494,10 @@
 
       <section id="history" class="page hidden">
         <div class="topbar"><div><h2>Istoric audituri</h2><p>Auditurile salvate apar aici automat.</p></div></div>
+        <div class="card section-filter-card dashboard-chip-card">
+          <input type="hidden" id="historyDepotFilter" value="__all__">
+          <div id="historyDepotChips" class="depot-chip-list"></div>
+        </div>
         <div class="card">
           <div id="historyList"></div>
         </div>
@@ -5839,7 +6230,8 @@ function fillColleagueSelects() {
       sections.innerHTML = '';
       updateActivityVisibility();
       const active = chapters.filter(isActiveChapter);
-      document.getElementById('activeSections').innerText = active.length;
+      const activeSectionsEl = document.getElementById('activeSections');
+      if (activeSectionsEl) activeSectionsEl.innerText = active.length;
 
       active.forEach((ch, index) => {
         const tabWrap = document.createElement('span');
@@ -5889,7 +6281,7 @@ function fillColleagueSelects() {
             ${ch.questions.map((q, i) => `
               <div class="check-row" draggable="true" data-chapter="${ch.id}" data-question-index="${i}" ondragstart="handleQuestionDragStart(event, \'${ch.id}\', ${i})" ondragover="handleQuestionDragOver(event)" ondrop="handleQuestionDrop(event, \'${ch.id}\', ${i})" ondragend="handleQuestionDragEnd(event)">
                 <div class="check-top">
-                  <div><div class="question">${q[0]}</div><div class="hint">Observația devine obligatorie la răspuns neconform.</div></div>
+                  <div><div class="question">${q[0]}</div><div class="hint">Acțiunea corectivă devine obligatorie la răspuns neconform.</div></div>
                   <select data-bad="${q[1]}" onchange="handleAnswer(this)">
                     <option value="ok" ${q[1]==='yes' ? '' : 'selected'}>Da</option>
                     <option value="bad" ${q[1]==='yes' ? 'selected' : ''}>Nu</option>
@@ -5908,7 +6300,14 @@ function fillColleagueSelects() {
                 <button class="remove-question" tabindex="-1" type="button" title="Elimină întrebarea" onclick="removeQuestion('${ch.id}', ${i})"><svg class="trash-icon" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
   <path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/>
 </svg></button>
-                <div class="obs"><label>Observație obligatorie</label><textarea placeholder="Descrie problema, cauza și acțiunea recomandată"></textarea></div>
+                <div class="obs corrective-panel">
+                  <div class="corrective-grid">
+                    <div><label>Acțiune corectivă</label><textarea data-corrective-action onchange="saveAuditContentState()" placeholder="Descrie acțiunea necesară"></textarea></div>
+                    <div><label>Termen</label><input type="date" data-corrective-due onchange="saveAuditContentState()"></div>
+                    <div><label>Prioritate</label><select data-corrective-priority onchange="saveAuditContentState()"><option>Scăzută</option><option selected>Medie</option><option>Ridicată</option><option>Critică</option></select></div>
+                    <div><label>Status</label><select data-corrective-status onchange="saveAuditContentState()"><option selected>Deschis</option><option>În lucru</option><option>Rezolvat</option><option>Închis</option></select></div>
+                  </div>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -5930,9 +6329,9 @@ function fillColleagueSelects() {
         `;
         sections.appendChild(el);
       });
-recalc();
+applyPreviousActionMarkers();
+      recalc();
     }
-
 
 
 
@@ -6121,7 +6520,12 @@ recalc();
           chapterState.questions[key] = {
             answer: selects[0]?.value || 'ok',
             risk: selects[1]?.value || 'Risc scăzut',
-            observation: row.querySelector('.obs textarea')?.value || '',
+            observation: row.querySelector('[data-corrective-action]')?.value || '',
+            correctiveAction: row.querySelector('[data-corrective-action]')?.value || '',
+            correctiveResponsible: row.querySelector('[data-corrective-responsible]')?.value || '',
+            correctiveDue: row.querySelector('[data-corrective-due]')?.value || '',
+            correctivePriority: row.querySelector('[data-corrective-priority]')?.value || 'Medie',
+            correctiveStatus: row.querySelector('[data-corrective-status]')?.value || 'Deschis',
             nonconform: isAnswerNonconform(row)
           };
         });
@@ -6193,8 +6597,16 @@ recalc();
           if (selects[1]) selects[1].value = saved.risk || 'Fără riscuri';
 
           const obs = row.querySelector('.obs');
-          const textarea = row.querySelector('.obs textarea');
-          if (textarea) textarea.value = saved.observation || '';
+          const textarea = row.querySelector('[data-corrective-action]');
+          if (textarea) textarea.value = saved.correctiveAction || saved.observation || '';
+          const responsibleInput = row.querySelector('[data-corrective-responsible]');
+          if (responsibleInput) responsibleInput.value = saved.correctiveResponsible || chapterState.responsible || '';
+          const dueInput = row.querySelector('[data-corrective-due]');
+          if (dueInput) dueInput.value = saved.correctiveDue || '';
+          const prioritySelect = row.querySelector('[data-corrective-priority]');
+          if (prioritySelect) prioritySelect.value = saved.correctivePriority || 'Medie';
+          const statusSelect = row.querySelector('[data-corrective-status]');
+          if (statusSelect) statusSelect.value = saved.correctiveStatus || saved.status || 'Deschis';
           if (obs) obs.classList.toggle('required', isAnswerNonconform(row));
         });
 
@@ -6220,6 +6632,8 @@ recalc();
     const AUDIT_HISTORY_KEY = 'audit-history-v1';
     const AUDIT_CLOUD_DOC = 'audit-current-state';
     const AUDIT_HISTORY_COLLECTION = 'auditHistory';
+    const AUDIT_TEMPLATE_KEY = 'audit-template-chapters-v1';
+    const AUDIT_TEMPLATE_DOC = 'audit-template-v1';
 
     let cloudDb = null;
     let cloudReady = false;
@@ -6268,6 +6682,24 @@ recalc();
         cloudReady = true;
         setSyncStatus(authOk ? 'Live sync activ' : 'Live sync activ fără Authentication', true);
 
+        cloudDb.collection('auditApp').doc(AUDIT_TEMPLATE_DOC).onSnapshot(snapshot => {
+          if (!snapshot.exists) {
+            pushChaptersTemplate();
+            return;
+          }
+          const data = snapshot.data() || {};
+          if (!Array.isArray(data.chaptersConfig)) return;
+          applyingRemoteState = true;
+          chapters = data.chaptersConfig;
+          persistChaptersLocal();
+          normalizeAuditChapters();
+          renderSectionsPreservingContent(getActiveChapterId());
+          applyingRemoteState = false;
+          setSyncStatus('Șablon audit actualizat', true);
+        }, error => {
+          console.warn('Șablonul auditului nu a putut fi citit.', error);
+        });
+
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).onSnapshot(snapshot => {
           if (!snapshot.exists) return;
           const data = snapshot.data();
@@ -6281,7 +6713,7 @@ recalc();
           applyingRemoteState = true;
           if (Array.isArray(data.chaptersConfig)) {
             chapters = data.chaptersConfig;
-            localStorage.setItem('audit-chapters-v4', JSON.stringify(chapters));
+            persistChaptersLocal();
             renderSections();
           }
           restoreAuditContentState(data.state);
@@ -6328,6 +6760,7 @@ recalc();
           state,
           history,
           chaptersConfig: chapters,
+          templateVersion: Number(localStorage.getItem('audit-template-updated-at') || Date.now()),
           dashboard: buildDashboardSummary(),
           updatedAt: lastLocalWrite
         }, { merge: true });
@@ -6397,14 +6830,33 @@ recalc();
       };
     }
 
+    const DEPOT_FILTER_STORAGE_KEY = 'growup_selected_depot_filter';
+
+    function getGlobalDepotFilter() {
+      return localStorage.getItem(DEPOT_FILTER_STORAGE_KEY) || '__all__';
+    }
+
+    function syncDepotFilterInputs(value) {
+      const normalized = value || '__all__';
+      localStorage.setItem(DEPOT_FILTER_STORAGE_KEY, normalized);
+      ['dashboard', 'issues', 'history'].forEach(section => {
+        const input = document.getElementById(section + 'DepotFilter');
+        if (input) input.value = normalized;
+        document.querySelectorAll('#' + section + 'DepotChips .depot-chip').forEach(btn => {
+          const btnValue = btn.getAttribute('data-depot') || '__all__';
+          btn.classList.toggle('active', btnValue === normalized);
+        });
+      });
+    }
+
     function getSelectedDashboardDepot() {
       const select = document.getElementById('dashboardDepotFilter');
-      return select ? select.value : '__all__';
+      return select ? (select.value || getGlobalDepotFilter()) : getGlobalDepotFilter();
     }
 
     function setDashboardDepotFilter(value) {
-      const input = document.getElementById('dashboardDepotFilter');
-      if (input) input.value = value || '__all__';
+      const normalized = value || '__all__';
+      syncDepotFilterInputs(normalized);
       renderDashboardStats(false);
     }
 
@@ -6416,15 +6868,16 @@ recalc();
       const input = document.getElementById('dashboardDepotFilter');
       const chips = document.getElementById('dashboardDepotChips');
       if (!input || !chips) return;
-      const current = input.value || '__all__';
+      const current = getGlobalDepotFilter();
+      input.value = current;
       const depots = [...new Set((history || []).map(item => item.depot || 'Depozit nesetat'))]
         .sort((a, b) => a.localeCompare(b, 'ro'));
-      if (current !== '__all__' && !depots.includes(current)) input.value = '__all__';
-      const active = input.value || '__all__';
+      if (current !== '__all__' && !depots.includes(current)) syncDepotFilterInputs('__all__');
+      const active = input.value || getGlobalDepotFilter();
       const allClass = active === '__all__' ? ' active' : '';
-      chips.innerHTML = `<button type="button" class="depot-chip${allClass}" onclick="setDashboardDepotFilter('__all__')">Toate depozitele</button>` + depots.map(depot => {
+      chips.innerHTML = `<button type="button" data-depot="__all__" class="depot-chip${allClass}" onclick="setDashboardDepotFilter('__all__')">Toate depozitele</button>` + depots.map(depot => {
         const cls = depot === active ? ' active' : '';
-        return `<button type="button" class="depot-chip${cls}" onclick="setDashboardDepotFilter('${escapeAttr(depot)}')">${escapeHtml(depot)}</button>`;
+        return `<button type="button" data-depot="${escapeAttr(depot)}" class="depot-chip${cls}" onclick="setDashboardDepotFilter('${escapeAttr(depot)}')">${escapeHtml(depot)}</button>`;
       }).join('');
     }
 
@@ -6432,6 +6885,71 @@ recalc();
       const selected = getSelectedDashboardDepot();
       if (selected === '__all__') return history;
       return history.filter(item => (item.depot || 'Depozit nesetat') === selected);
+    }
+
+    function getSectionDepotFilter(section) {
+      const input = document.getElementById(section + 'DepotFilter');
+      return input ? (input.value || getGlobalDepotFilter()) : getGlobalDepotFilter();
+    }
+
+    function setSectionDepotFilter(section, value) {
+      const normalized = value || '__all__';
+      syncDepotFilterInputs(normalized);
+      if (section === 'issues') renderIssues(false);
+      if (section === 'history') renderHistory(false);
+      if (section === 'dashboard') renderDashboardStats(false);
+    }
+
+    function updateSectionDepotOptions(section, history) {
+      const input = document.getElementById(section + 'DepotFilter');
+      const chips = document.getElementById(section + 'DepotChips');
+      if (!input || !chips) return;
+      const current = getGlobalDepotFilter();
+      input.value = current;
+      const depots = [...new Set((history || []).map(item => item.depot || 'Depozit nesetat'))]
+        .sort((a, b) => a.localeCompare(b, 'ro'));
+      if (current !== '__all__' && !depots.includes(current)) syncDepotFilterInputs('__all__');
+      const active = input.value || getGlobalDepotFilter();
+      const allClass = active === '__all__' ? ' active' : '';
+      chips.innerHTML = `<button type="button" data-depot="__all__" class="depot-chip${allClass}" onclick="setSectionDepotFilter('${section}', '__all__')">Toate depozitele</button>` + depots.map(depot => {
+        const cls = depot === active ? ' active' : '';
+        return `<button type="button" data-depot="${escapeAttr(depot)}" class="depot-chip${cls}" onclick="setSectionDepotFilter('${section}', '${escapeAttr(depot)}')">${escapeHtml(depot)}</button>`;
+      }).join('');
+    }
+
+    function getSectionFilteredHistory(section, history) {
+      const selected = getSectionDepotFilter(section);
+      if (selected === '__all__') return history;
+      return history.filter(item => (item.depot || 'Depozit nesetat') === selected);
+    }
+
+    function isCorrectiveIssueActive(issue) {
+      const status = String(issue?.status || issue?.correctiveStatus || 'Deschis').trim().toLowerCase();
+      return !['rezolvat', 'închis', 'inchis'].includes(status);
+    }
+
+    function getActiveIssuesFromRecord(record) {
+      return getIssuesFromRecord(record).filter(isCorrectiveIssueActive);
+    }
+
+    function getActiveCurrentIssueCount() {
+      return [...document.querySelectorAll('.check-row')].filter(row => {
+        if (!isAnswerNonconform(row)) return false;
+        const status = row.querySelector('[data-corrective-status]')?.value || 'Deschis';
+        return isCorrectiveIssueActive({ status });
+      }).length;
+    }
+
+    function updateIssueNavigationCount(count) {
+      normalizeMenuNumbers();
+    }
+
+    function normalizeMenuNumbers() {
+      const fixed = { dashboard: '01', issues: '02', history: '03' };
+      document.querySelectorAll('nav button[data-page]').forEach(button => {
+        const span = button.querySelector('span');
+        if (span && fixed[button.dataset.page]) span.innerText = fixed[button.dataset.page];
+      });
     }
 
     function renderDashboardDepotResults(history) {
@@ -6454,7 +6972,7 @@ recalc();
       const rows = [...grouped.entries()].map(([depot, items]) => {
         const audits = items.length;
         const avg = audits ? Math.round(items.reduce((sum, item) => sum + Number(item.score || 0), 0) / audits) : 0;
-        const issues = items.reduce((sum, item) => sum + getIssuesFromRecord(item).length, 0);
+        const issues = items.reduce((sum, item) => sum + getActiveIssuesFromRecord(item).length, 0);
         const latest = items.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
         return { depot, audits, avg, issues, latest };
       }).sort((a, b) => b.audits - a.audits || a.depot.localeCompare(b.depot, 'ro'));
@@ -6463,7 +6981,7 @@ recalc();
         const riskClass = row.avg >= 90 ? 'risk-low' : row.avg >= 75 ? 'risk-mid' : 'risk-high';
         const latest = row.latest ? new Date(row.latest).toLocaleDateString('ro-RO') : 'Nesalvat';
         return `
-          <div class="dashboard-result-row">
+          <div class="dashboard-result-row clickable-row" onclick="openDepotAudits('${escapeAttr(row.depot)}')" title="Deschide auditurile pentru acest depozit">
             <strong>${escapeHtml(row.depot)}</strong>
             <span class="${riskClass}">${row.avg}%</span>
             <small>${row.audits} audituri</small>
@@ -6473,29 +6991,217 @@ recalc();
       }).join('');
     }
 
+
+    function openDashboardIssues() {
+      setSectionDepotFilter('issues', getSelectedDashboardDepot());
+      goPage('issues');
+    }
+
+    function openDashboardHistory() {
+      setSectionDepotFilter('history', getSelectedDashboardDepot());
+      goPage('history');
+    }
+
+    function openDepotAudits(depot) {
+      setDashboardDepotFilter(depot);
+      setSectionDepotFilter('history', depot);
+      goPage('history');
+    }
+
+    function updateCorrectiveIssue(recordId, issueIndex, field, value, chapterId = '', questionKey = '') {
+      const history = getAuditHistory();
+      const record = history.find(item => item.id === recordId);
+      if (!record) return;
+
+      if (Array.isArray(record.issues) && Number.isInteger(Number(issueIndex)) && record.issues[Number(issueIndex)]) {
+        const issue = record.issues[Number(issueIndex)];
+        issue[field] = value;
+        if (field === 'action') {
+          issue.observation = value;
+          issue.correctiveAction = value;
+        }
+        if (field === 'due') issue.correctiveDue = value;
+        if (field === 'priority') issue.correctivePriority = value;
+        if (field === 'status') issue.correctiveStatus = value;
+      }
+
+      if (record.state && record.state.chapters) {
+        const targetChapterId = chapterId || '';
+        const targetQuestionKey = questionKey || '';
+        const chaptersToCheck = targetChapterId ? [[targetChapterId, record.state.chapters[targetChapterId]]] : Object.entries(record.state.chapters);
+        chaptersToCheck.forEach(([chId, chapterState]) => {
+          if (!chapterState || !chapterState.questions) return;
+          Object.entries(chapterState.questions).forEach(([qKey, qState]) => {
+            if (targetQuestionKey && qKey !== targetQuestionKey) return;
+            if (!targetQuestionKey && Array.isArray(record.issues) && record.issues[Number(issueIndex)]) {
+              const issue = record.issues[Number(issueIndex)];
+              const plainKey = String(qKey).replace(/##\d+$/, '');
+              if (plainKey !== String(issue.question || '').replace(/##\d+$/, '')) return;
+            }
+            if (field === 'action') {
+              qState.correctiveAction = value;
+              qState.observation = value;
+            }
+            if (field === 'due') qState.correctiveDue = value;
+            if (field === 'priority') qState.correctivePriority = value;
+            if (field === 'status') qState.correctiveStatus = value;
+          });
+        });
+      }
+
+      record.updatedAt = new Date().toISOString();
+      setAuditHistory(history);
+      saveAuditRecordToCloud(record);
+      renderDashboardStats();
+      renderHistory();
+      renderIssues(false);
+    }
+
+    function getResolvedPreviousActionsForDepot(depot) {
+      const selectedDepot = String(depot || document.getElementById('employeeDepot')?.value || '').trim();
+      if (!selectedDepot) return new Map();
+      const map = new Map();
+      getAuditHistory().forEach(record => {
+        const recordDepot = String(record.depot || record.state?.employeeDepot || '').trim();
+        if (recordDepot !== selectedDepot) return;
+        getIssuesFromRecord(record).forEach(issue => {
+          const status = String(issue.status || issue.correctiveStatus || 'Deschis').trim().toLowerCase();
+          if (!['rezolvat', 'închis', 'inchis'].includes(status)) return;
+          const chapterTitle = String(issue.chapter || '').trim();
+          const question = String(issue.question || '').replace(/##\d+$/, '').trim();
+          const key = chapterTitle + '||' + question;
+          const current = map.get(key);
+          const currentDate = current ? new Date(current.auditDate || 0) : new Date(0);
+          const itemDate = new Date(issue.auditDate || 0);
+          if (!current || itemDate >= currentDate) map.set(key, issue);
+        });
+      });
+      return map;
+    }
+
+    function applyPreviousActionMarkers() {
+      const depot = document.getElementById('employeeDepot')?.value || '';
+      const previous = getResolvedPreviousActionsForDepot(depot);
+      document.querySelectorAll('.check-row').forEach(row => {
+        row.classList.remove('has-previous-action');
+        delete row.dataset.previousAction;
+        delete row.dataset.previousStatus;
+        row.querySelector('.previous-action-badge')?.remove();
+        if (!previous.size) return;
+        const chapterId = row.dataset.chapter || '';
+        const chapter = chapters.find(ch => ch.id === chapterId);
+        const chapterTitle = chapter?.title || chapterId;
+        const question = row.querySelector('.question')?.innerText?.trim() || '';
+        const issue = previous.get(chapterTitle + '||' + question);
+        if (!issue) return;
+        row.classList.add('has-previous-action');
+        row.dataset.previousAction = issue.action || issue.observation || '';
+        row.dataset.previousStatus = issue.status || issue.correctiveStatus || '';
+        const hint = row.querySelector('.hint');
+        if (hint) {
+          const badge = document.createElement('div');
+          badge.className = 'previous-action-badge';
+          badge.textContent = 'Acțiune anterioară, verifică la acest audit';
+          hint.insertAdjacentElement('afterend', badge);
+        }
+      });
+    }
+
+    function getCompliantAnswerForQuestion(chapterId, questionKeyOrLabel) {
+      const plainLabel = String(questionKeyOrLabel || '').replace(/##\d+$/, '').trim();
+      const chapter = chapters.find(ch => ch.id === chapterId);
+      const template = chapter?.questions?.find(q => String(q[0] || '').trim() === plainLabel);
+      const badWhen = template?.[1] || 'no';
+      return badWhen === 'yes' ? 'bad' : 'ok';
+    }
+
+    function recalculateAuditRecordScore(record) {
+      const questions = [];
+      Object.values(record?.state?.chapters || {}).forEach(chapterState => {
+        Object.values(chapterState?.questions || {}).forEach(qState => questions.push(qState));
+      });
+      const total = questions.length;
+      const bad = questions.filter(q => q && q.nonconform && !q.correctiveDeleted).length;
+      const score = total ? Math.round(((total - bad) / total) * 100) : 100;
+      record.score = score;
+      record.status = score >= 95 ? 'Foarte bine' : score >= 80 ? 'Bine' : score >= 70 ? 'Necesită atenție' : 'Critic';
+      record.chapterScores = getChapterScoresFromRecord(record);
+      return score;
+    }
+
+    async function deleteCorrectiveIssue(recordId, issueIndex, chapterId = '', questionKey = '') {
+      if (!recordId) return;
+      const confirmed = await showConfirmModal('Ștergerea acestei acțiuni va elimina neconformitatea și va recalcula automat scorul auditului. Continui?', 'Ștergere acțiune');
+      if (!confirmed) return;
+      const history = getAuditHistory();
+      const record = history.find(item => item.id === recordId);
+      if (!record) return;
+      const idx = Number(issueIndex);
+      let issue = null;
+      if (Array.isArray(record.issues) && Number.isInteger(idx) && record.issues[idx]) {
+        issue = record.issues[idx];
+        issue.deleted = true;
+        issue.correctiveDeleted = true;
+        issue.status = 'Închis';
+        issue.correctiveStatus = 'Închis';
+      }
+      if (record.state && record.state.chapters) {
+        const chaptersToCheck = chapterId ? [[chapterId, record.state.chapters[chapterId]]] : Object.entries(record.state.chapters);
+        chaptersToCheck.forEach(([chId, chapterState]) => {
+          if (!chapterState || !chapterState.questions) return;
+          Object.entries(chapterState.questions).forEach(([qKey, qState]) => {
+            if (questionKey && qKey !== questionKey) return;
+            if (!questionKey && issue) {
+              const plainKey = String(qKey).replace(/##\d+$/, '');
+              if (plainKey !== String(issue.question || '').replace(/##\d+$/, '')) return;
+            }
+            qState.answer = getCompliantAnswerForQuestion(chId, qKey);
+            qState.risk = 'Fără riscuri';
+            qState.observation = '';
+            qState.correctiveAction = '';
+            qState.correctiveDue = '';
+            qState.correctivePriority = 'Medie';
+            qState.correctiveStatus = 'Închis';
+            qState.correctiveDeleted = true;
+            qState.nonconform = false;
+          });
+        });
+      }
+      recalculateAuditRecordScore(record);
+      record.updatedAt = new Date().toISOString();
+      setAuditHistory(history);
+      saveAuditRecordToCloud(record);
+      renderDashboardStats();
+      renderHistory();
+      renderIssues(false);
+    }
+
     function renderDashboardStats(updateOptions = true) {
       const history = getAuditHistory();
       if (updateOptions) updateDashboardDepotOptions(history);
       const filteredHistory = getDashboardFilteredHistory(history);
       const savedEl = document.getElementById('savedAuditsCount');
-      const avgEl = document.getElementById('avgHistoryScore');
       const lastEl = document.getElementById('lastAuditDate');
       const scoreEl = document.getElementById('scoreTotal');
       const issuesEl = document.getElementById('issueCount');
-      const activeEl = document.getElementById('activeSections');
+      const ringEl = document.getElementById('dashboardScoreRing');
+      const ringLabel = document.getElementById('dashboardScoreLabel');
+      const miniMeta = document.getElementById('dashboardMiniMeta');
 
       const avg = filteredHistory.length ? Math.round(filteredHistory.reduce((sum, item) => sum + Number(item.score || 0), 0) / filteredHistory.length) : 0;
       const allIssues = filteredHistory.flatMap(getIssuesFromRecord);
+      const activeIssues = filteredHistory.flatMap(getActiveIssuesFromRecord);
+      const latestRecord = filteredHistory.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0];
+      const latest = latestRecord?.savedAt;
 
       if (savedEl) savedEl.innerText = filteredHistory.length;
-      if (avgEl) avgEl.innerText = avg + '%';
-      if (scoreEl && filteredHistory.length) scoreEl.innerText = avg + '%';
-      if (issuesEl && filteredHistory.length) issuesEl.innerText = allIssues.length;
-      if (activeEl && filteredHistory.length) activeEl.innerText = chapters.filter(isActiveChapter).length;
-      if (lastEl) {
-        const latest = filteredHistory.slice().sort((a, b) => new Date(b.savedAt || 0) - new Date(a.savedAt || 0))[0]?.savedAt;
-        lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
-      }
+      if (scoreEl) scoreEl.innerText = avg + '%';
+      if (issuesEl) issuesEl.innerText = activeIssues.length;
+      updateIssueNavigationCount(activeIssues.length);
+      if (ringEl) ringEl.style.setProperty('--dashboard-score', avg + '%');
+      if (ringLabel) ringLabel.innerText = avg + '%';
+      if (miniMeta) miniMeta.innerHTML = `<span>${filteredHistory.length} audituri</span><span>${activeIssues.length} acțiuni deschise</span>`;
+      if (lastEl) lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
 
       renderDashboardChapterScores(filteredHistory);
       renderDashboardDepotResults(history);
@@ -6503,7 +7209,11 @@ recalc();
 
     function renderDashboardChapterScores(filteredHistory) {
       const box = document.getElementById('chapterScores');
-      if (!box || !filteredHistory.length) return;
+      if (!box) return;
+      if (!filteredHistory.length) {
+        box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există date pentru selecția curentă.</p>';
+        return;
+      }
       const grouped = new Map();
       filteredHistory.forEach(record => {
         getChapterScoresFromRecord(record).forEach(item => {
@@ -6511,13 +7221,25 @@ recalc();
           grouped.get(item.id).scores.push(item.score);
         });
       });
-      if (!grouped.size) return;
-      box.innerHTML = [...grouped.values()].map(item => {
+      if (!grouped.size) {
+        box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există capitole salvate pentru selecția curentă.</p>';
+        return;
+      }
+      const scored = [...grouped.values()].map(item => {
         const score = Math.round(item.scores.reduce((sum, value) => sum + value, 0) / item.scores.length);
+        return { ...item, score };
+      }).sort((a, b) => a.score - b.score || a.title.localeCompare(b.title, 'ro'));
+
+      box.innerHTML = scored.map(item => {
+        const score = item.score;
+        const riskClass = score >= 90 ? 'risk-low' : score >= 75 ? 'risk-mid' : 'risk-high';
         return `
-          <div style="margin-bottom:14px">
-            <div style="display:flex;justify-content:space-between;font-weight:800"><span>${escapeHtml(item.title)}</span><span>${score}%</span></div>
-            <div class="progress-wrap"><div class="progress" style="width:${score}%"></div></div>
+          <div class="chapter-score-card" title="${escapeAttr(item.title)}">
+            <div class="chapter-score-head">
+              <span>${escapeHtml(item.title)}</span>
+              <span class="${riskClass}">${score}%</span>
+            </div>
+            <div class="chapter-score-track"><div class="chapter-score-fill" style="width:${score}%"></div></div>
           </div>
         `;
       }).join('');
@@ -6566,20 +7288,40 @@ recalc();
     }
 
     function getIssuesFromRecord(record) {
-      if (Array.isArray(record?.issues) && record.issues.length) return record.issues;
+      if (Array.isArray(record?.issues) && record.issues.length) return record.issues.map((issue, index) => ({
+        ...issue,
+        _recordId: record.id || '',
+        _issueIndex: index,
+        depot: issue.depot || record.depot || 'Depozit nesetat',
+        auditDate: issue.auditDate || record.savedAt || '',
+        action: issue.action || issue.correctiveAction || issue.observation || '',
+        due: issue.due || issue.correctiveDue || '',
+        priority: issue.priority || issue.correctivePriority || 'Medie',
+        status: issue.status || issue.correctiveStatus || 'Deschis'
+      })).filter(issue => !issue.deleted && !issue.correctiveDeleted);
       const state = record?.state;
       if (!state || !state.chapters) return [];
       const issues = [];
       Object.entries(state.chapters).forEach(([chapterId, chapterState]) => {
         const chapter = chapters.find(ch => ch.id === chapterId);
         Object.entries(chapterState.questions || {}).forEach(([question, qState]) => {
-          if (!qState || !qState.nonconform) return;
+          if (!qState || !qState.nonconform || qState.correctiveDeleted) return;
+          const action = qState.correctiveAction || qState.observation || '';
           issues.push({
+            _recordId: record.id || '',
+            _chapterId: chapterId,
+            _questionKey: question,
+            depot: record.depot || state.employeeDepot || 'Depozit nesetat',
+            auditDate: record.savedAt || '',
             chapter: chapter?.title || chapterId,
             question: String(question).replace(/##\d+$/, ''),
             risk: qState.risk || 'Risc scăzut',
-            observation: qState.observation || '',
-            status: 'Deschis'
+            observation: action,
+            action,
+            responsible: qState.correctiveResponsible || chapterState.responsible || (chapterState.responsibles || [])[0] || '',
+            due: qState.correctiveDue || '',
+            priority: qState.correctivePriority || 'Medie',
+            status: qState.correctiveStatus || 'Deschis'
           });
         });
       });
@@ -6602,18 +7344,63 @@ recalc();
       });
     }
 
+    function getDefaultCorrectiveDue() {
+      const date = new Date();
+      date.setDate(date.getDate() + 7);
+      return date.toISOString().slice(0, 10);
+    }
+
+    function getChapterResponsible(chapterId) {
+      const section = document.getElementById('section-' + chapterId);
+      const selected = section?.querySelector(`select[data-responsible="${chapterId}"]`)?.value || '';
+      if (selected) return selected;
+      const fallback = {
+        car: 'ASM',
+        rx: 'Laborator',
+        billing: 'Facturare',
+        mount: 'Atelier montaj',
+        delivery: 'Responsabil livrare',
+        stock: 'Responsabil stocuri',
+        image: 'Responsabil depozit',
+        perishables: 'Responsabil depozit'
+      };
+      return fallback[chapterId] || 'Responsabil depozit';
+    }
+
+    function hydrateCorrectiveFields(row) {
+      if (!row) return;
+      const chapterId = row.dataset.chapter || '';
+      const dueInput = row.querySelector('[data-corrective-due]');
+      if (dueInput && !dueInput.value) dueInput.value = getDefaultCorrectiveDue();
+      const prioritySelect = row.querySelector('[data-corrective-priority]');
+      const risk = row.querySelectorAll('select')[1]?.value || '';
+      if (prioritySelect && (!prioritySelect.value || prioritySelect.value === 'Medie')) {
+        if (risk.includes('Critic')) prioritySelect.value = 'Critică';
+        else if (risk.includes('ridicat')) prioritySelect.value = 'Ridicată';
+        else if (risk.includes('scăzut')) prioritySelect.value = 'Scăzută';
+      }
+    }
+
     function getCurrentIssues() {
       const rows = [...document.querySelectorAll('.check-row')].filter(isAnswerNonconform);
+      const depot = document.getElementById('employeeDepot')?.value || 'Depozit nesetat';
       return rows.map(row => {
+        hydrateCorrectiveFields(row);
         const chapterId = row.dataset.chapter;
         const chapter = chapters.find(ch => ch.id === chapterId);
         const selects = row.querySelectorAll('select');
+        const action = row.querySelector('[data-corrective-action]')?.value || '';
         return {
+          depot,
+          auditDate: new Date().toISOString(),
           chapter: chapter?.title || '',
           question: row.querySelector('.question')?.innerText || '',
           risk: selects[1]?.value || '',
-          observation: row.querySelector('.obs textarea')?.value || '',
-          status: 'Deschis'
+          observation: action,
+          action,
+          due: row.querySelector('[data-corrective-due]')?.value || '',
+          priority: row.querySelector('[data-corrective-priority]')?.value || 'Medie',
+          status: row.querySelector('[data-corrective-status]')?.value || 'Deschis'
         };
       });
     }
@@ -6657,23 +7444,71 @@ recalc();
     }
 
 
-    function renderIssues() {
-      const issues = getCurrentIssues();
+    function renderIssues(updateOptions = true) {
       const box = document.getElementById('issuesList');
       if (!box) return;
+
+      const allHistory = getAuditHistory();
+      if (updateOptions) updateSectionDepotOptions('issues', allHistory);
+      const history = getSectionFilteredHistory('issues', allHistory);
+      let issues = history.flatMap(getIssuesFromRecord);
+      if (!issues.length) issues = getCurrentIssues();
+
+      issues.sort((a, b) => new Date(b.auditDate || 0) - new Date(a.auditDate || 0));
 
       box.innerHTML = issues.length ? issues.map(item => {
         const risk = item.risk || 'Fără riscuri';
         const cls = risk.includes('Critic') || risk.includes('ridicat') ? 'risk-high' : risk.includes('mediu') ? 'risk-mid' : 'risk-low';
+        const date = item.auditDate ? new Date(item.auditDate).toLocaleDateString('ro-RO') : 'Audit curent';
+        const action = item.action || item.observation || '';
+        const recordId = escapeAttr(item._recordId || '');
+        const issueIndex = Number.isInteger(item._issueIndex) ? item._issueIndex : -1;
+        const chapterId = escapeAttr(item._chapterId || '');
+        const questionKey = escapeAttr(item._questionKey || '');
+        const disabled = recordId ? '' : ' disabled';
+        const priority = item.priority || 'Medie';
+        const status = item.status || 'Deschis';
         return `
-          <div class="issue">
-            <strong>${escapeHtml(item.question)}</strong>
-            <span class="${cls}">${escapeHtml(risk)}</span>
-            <span>${escapeHtml(item.status)}</span>
-            <small>${escapeHtml(item.chapter)}${item.observation ? ' · ' + escapeHtml(item.observation) : ''}</small>
+          <div class="issue-card">
+            <div class="issue-card-head">
+              <div>
+                <strong>${escapeHtml(item.question)}</strong>
+                <div class="issue-meta">
+                  <span>${escapeHtml(item.depot || 'Depozit nesetat')}</span>
+                  <span>${escapeHtml(item.chapter || '')}</span>
+                  <span>${escapeHtml(date)}</span>
+                </div>
+              </div>
+              <span class="${cls}">${escapeHtml(risk)}</span>
+            </div>
+            <div class="issue-edit-grid">
+              <div>
+                <label>Acțiune corectivă</label>
+                <textarea${disabled} onchange="updateCorrectiveIssue('${recordId}', ${issueIndex}, 'action', this.value, '${chapterId}', '${questionKey}')" placeholder="Descrie acțiunea necesară">${escapeHtml(action)}</textarea>
+              </div>
+              <div>
+                <label>Termen</label>
+                <input${disabled} type="date" value="${escapeAttr(item.due || '')}" onchange="updateCorrectiveIssue('${recordId}', ${issueIndex}, 'due', this.value, '${chapterId}', '${questionKey}')">
+              </div>
+              <div>
+                <label>Prioritate</label>
+                <select${disabled} onchange="updateCorrectiveIssue('${recordId}', ${issueIndex}, 'priority', this.value, '${chapterId}', '${questionKey}')">
+                  ${['Scăzută','Medie','Ridicată','Critică'].map(opt => `<option ${opt === priority ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label>Status</label>
+                <select${disabled} onchange="updateCorrectiveIssue('${recordId}', ${issueIndex}, 'status', this.value, '${chapterId}', '${questionKey}')">
+                  ${['Deschis','În lucru','Rezolvat','Închis'].map(opt => `<option ${opt === status ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="issue-card-actions">
+              <button class="icon-btn delete-agent" type="button"${disabled} title="Șterge acțiunea" onclick="deleteCorrectiveIssue('${recordId}', ${issueIndex}, '${chapterId}', '${questionKey}')"><svg class="trash-icon" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 7h2v8H8v-8Zm3 0h2v8h-2v-8Zm3 0h2v8h-2v-8ZM6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z"/></svg></button>
+            </div>
           </div>
         `;
-      }).join('') : '<p style="color:var(--muted);margin:0">Nu există acțiuni corective în acest moment.</p>';
+      }).join('') : '<p style="color:var(--muted);margin:0">Nu există acțiuni corective pentru selecția curentă.</p>';
     }
 
     function saveAuditRecord() {
@@ -6717,29 +7552,41 @@ recalc();
       deleteAuditRecordFromCloud(id);
     }
 
-    function renderHistory() {
+    function renderHistory(updateOptions = true) {
       const box = document.getElementById('historyList');
       if (!box) return;
 
-      const history = getAuditHistory();
+      const allHistory = getAuditHistory();
+      if (updateOptions) updateSectionDepotOptions('history', allHistory);
+      const history = getSectionFilteredHistory('history', allHistory);
       if (!history.length) {
-        box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există audituri salvate.</p>';
+        box.innerHTML = '<p style="color:var(--muted);margin:0">Nu există audituri salvate pentru selecția curentă.</p>';
         return;
       }
 
-      box.innerHTML = history.map(item => {
+      const header = `
+        <div class="history-card history-head">
+          <span>Depozit</span>
+          <span>Acțiune</span>
+          <span>Rezultat</span>
+          <span>Data</span>
+          <span>Perioada auditata</span>
+        </div>
+      `;
+
+      box.innerHTML = header + history.map(item => {
         const riskClass = item.score >= 90 ? 'risk-low' : item.score >= 75 ? 'risk-mid' : 'risk-high';
         const date = item.savedAt ? new Date(item.savedAt).toLocaleString('ro-RO') : '';
         return `
           <div class="history-card">
             <strong>${escapeHtml(item.depot)}</strong>
-            <span class="${riskClass}">${item.score}%</span>
-            <span>${escapeHtml(date)}</span>
-            <small>${escapeHtml(item.periodStart || '')} - ${escapeHtml(item.periodEnd || '')} · ${getIssuesFromRecord(item).length} acțiuni</small>
             <div class="history-actions">
               <button class="mini-btn" type="button" onclick="loadAuditFromHistory('${item.id}')">Deschide</button>
               <button class="mini-btn" type="button" onclick="deleteAuditFromHistory('${item.id}')">Șterge</button>
             </div>
+            <span class="${riskClass}">${item.score}%</span>
+            <span>${escapeHtml(date)}</span>
+            <small>${escapeHtml(item.periodStart || '')} - ${escapeHtml(item.periodEnd || '')} · ${getIssuesFromRecord(item).length} acțiuni</small>
           </div>
         `;
       }).join('');
@@ -6794,9 +7641,30 @@ recalc();
     }
 
 
+function persistChaptersLocal() {
+      const payload = JSON.stringify(chapters);
+      localStorage.setItem('audit-chapters-v4', payload);
+      localStorage.setItem(AUDIT_TEMPLATE_KEY, payload);
+      localStorage.setItem('audit-template-updated-at', String(Date.now()));
+    }
+
+    function pushChaptersTemplate() {
+      if (!cloudReady || applyingRemoteState) return;
+      try {
+        const updatedAt = Number(localStorage.getItem('audit-template-updated-at') || Date.now());
+        cloudDb.collection('auditApp').doc(AUDIT_TEMPLATE_DOC).set({
+          chaptersConfig: chapters,
+          updatedAt
+        }, { merge: true });
+      } catch (error) {
+        console.warn('Șablonul auditului nu a putut fi salvat în cloud.', error);
+      }
+    }
+
 function saveChaptersConfig() {
       try {
-        localStorage.setItem('audit-chapters-v4', JSON.stringify(chapters));
+        persistChaptersLocal();
+        pushChaptersTemplate();
         scheduleCloudSave();
       } catch (error) {
         console.warn('Configurația întrebărilor nu a putut fi salvată.', error);
@@ -6952,7 +7820,7 @@ function saveChaptersConfig() {
     }
 
     function loadChaptersConfig() {
-      const saved = localStorage.getItem('audit-chapters-v4');
+      const saved = localStorage.getItem(AUDIT_TEMPLATE_KEY) || localStorage.getItem('audit-chapters-v4');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -6962,7 +7830,7 @@ function saveChaptersConfig() {
         }
       }
       normalizeAuditChapters();
-      saveChaptersConfig();
+      persistChaptersLocal();
     }
 
     function addQuestion(chapterId) {
@@ -7023,6 +7891,15 @@ function saveChaptersConfig() {
       const nonconform = isAnswerNonconform(row);
 
       obs.classList.toggle('required', nonconform);
+      if (nonconform) {
+        hydrateCorrectiveFields(row);
+        if (row.dataset.previousAction) {
+          const actionField = row.querySelector('[data-corrective-action]');
+          const statusField = row.querySelector('[data-corrective-status]');
+          if (actionField && !actionField.value.trim()) actionField.value = row.dataset.previousAction;
+          if (statusField) statusField.value = 'Deschis';
+        }
+      }
 
       if (risk) {
         const current = risk.value;
@@ -7040,7 +7917,8 @@ function saveChaptersConfig() {
       const badRows = rows.filter(isAnswerNonconform);
       const score = rows.length ? Math.round(((rows.length - badRows.length) / rows.length) * 100) : 100;
       document.getElementById('scoreTotal').innerText = score + '%';
-      document.getElementById('issueCount').innerText = badRows.length;
+      document.getElementById('issueCount').innerText = getActiveCurrentIssueCount();
+      updateIssueNavigationCount(getActiveCurrentIssueCount());
 
       const scores = chapters.filter(isActiveChapter).map(ch => {
         const chRows = rows.filter(r => r.dataset.chapter === ch.id);
@@ -7051,7 +7929,9 @@ function saveChaptersConfig() {
         return { title: ch.title, score: chScore };
       });
 
-      document.getElementById('chapterScores').innerHTML = scores.map(s => `
+      document.getElementById('chapterScores').innerHTML = scores
+        .sort((a, b) => a.score - b.score || a.title.localeCompare(b.title, 'ro'))
+        .map(s => `
         <div style="margin-bottom:14px">
           <div style="display:flex;justify-content:space-between;font-weight:800"><span>${s.title}</span><span>${s.score}%</span></div>
           <div class="progress-wrap"><div class="progress" style="width:${s.score}%"></div></div>
@@ -7150,7 +8030,7 @@ function saveChaptersConfig() {
             label: row.querySelector('.question')?.innerText || '',
             answer: row.querySelector('select')?.value === 'bad' ? 'Nu' : 'Da',
             risk: row.querySelectorAll('select')[1]?.value || '',
-            observation: row.querySelector('.obs textarea')?.value || '',
+            observation: row.querySelector('[data-corrective-action]')?.value || '',
             nonconform: isAnswerNonconform(row)
           })),
           generalObs
@@ -7229,7 +8109,7 @@ function saveChaptersConfig() {
             <span>${escapeHtml(q.label)}</span>
             <strong>${escapeHtml(q.answer)}${q.nonconform ? ' · Neconform' : ''}</strong>
           </div>
-          ${q.observation ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Observație:</b><br>${escapeHtml(q.observation)}</div>` : ''}
+          ${q.observation ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Acțiune corectivă:</b><br>${escapeHtml(q.observation)}</div>` : ''}
         `).join('');
 
         const generalObsHtml = ch.generalObs
@@ -7722,15 +8602,17 @@ function saveChaptersConfig() {
       document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
       document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
-      if (id === 'issues') renderIssues();
+      normalizeMenuNumbers();
+      if (id === 'issues') { syncDepotFilterInputs(getGlobalDepotFilter()); renderIssues(); }
       if (id === 'history') {
+        syncDepotFilterInputs(getGlobalDepotFilter());
         renderHistory();
         refreshCloudHistory();
       }
-      if (id === 'dashboard') { recalc(); renderDashboardStats(); }
+      if (id === 'dashboard') { syncDepotFilterInputs(getGlobalDepotFilter()); recalc(); renderDashboardStats(); }
     }
 
-    function resetForm() { localStorage.removeItem(AUDIT_STORAGE_KEY); location.reload(); }
+    function resetForm() { localStorage.removeItem(AUDIT_STORAGE_KEY); loadChaptersConfig(); location.reload(); }
     function saveDemo() {
       saveAuditRecord();
     }
@@ -7959,6 +8841,7 @@ function saveChaptersConfig() {
     }
 
     setupNavigation();
+    normalizeMenuNumbers();
     loadChaptersConfig();
     setupAuditAutoSave();
     renderIssues();
@@ -7973,7 +8856,7 @@ function saveChaptersConfig() {
 
     initCloudSync();
     fillColleagueSelects();
-    document.getElementById('employeeDepot').addEventListener('change', updateEmployeeDetails);
+    document.getElementById('employeeDepot').addEventListener('change', () => { updateEmployeeDetails(); applyPreviousActionMarkers(); saveAuditContentState(); });
     const auditToday = new Date();
     const auditStartDefault = new Date(auditToday);
     auditStartDefault.setMonth(auditStartDefault.getMonth() - 3);
