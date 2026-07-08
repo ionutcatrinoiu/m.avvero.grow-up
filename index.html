@@ -6880,6 +6880,14 @@ applyPreviousActionMarkers();
 
     const DEPOT_FILTER_STORAGE_KEY = 'growup_selected_depot_filter';
 
+    function resetGlobalDepotFilterToAll() {
+      try { localStorage.setItem(DEPOT_FILTER_STORAGE_KEY, '__all__'); } catch (error) {}
+      ['dashboard', 'issues', 'history'].forEach(section => {
+        const input = document.getElementById(section + 'DepotFilter');
+        if (input) input.value = '__all__';
+      });
+    }
+
     function getGlobalDepotFilter() {
       return localStorage.getItem(DEPOT_FILTER_STORAGE_KEY) || '__all__';
     }
@@ -8996,6 +9004,7 @@ function saveChaptersConfig() {
       }
 
       if (loginError) loginError.textContent = '';
+      resetGlobalDepotFilterToAll();
       sessionStorage.setItem('grow-up-audit-login', 'open');
       const loginScreen = document.getElementById('loginScreen');
       if (loginScreen) loginScreen.classList.add('hidden');
@@ -9006,6 +9015,7 @@ function saveChaptersConfig() {
 
     function returnToLogin() {
       sessionStorage.removeItem('grow-up-audit-login');
+      resetGlobalDepotFilterToAll();
       const loginScreen = document.getElementById('loginScreen');
       if (loginScreen) loginScreen.classList.remove('hidden');
       document.body.classList.add('login-active');
@@ -9020,6 +9030,7 @@ function saveChaptersConfig() {
     }
 
     function restoreSessionToDashboard() {
+      resetGlobalDepotFilterToAll();
       const loginScreen = document.getElementById('loginScreen');
       if (sessionStorage.getItem('grow-up-audit-login') === 'open') {
         if (loginScreen) loginScreen.classList.add('hidden');
@@ -9029,6 +9040,7 @@ function saveChaptersConfig() {
       window.scrollTo(0, 0);
     }
 
+    resetGlobalDepotFilterToAll();
     setupNavigation();
     normalizeMenuNumbers();
     loadChaptersConfig();
