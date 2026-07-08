@@ -1689,7 +1689,7 @@
 
     .corrective-grid {
       display: grid;
-      grid-template-columns: 1.6fr 160px 150px 130px;
+      grid-template-columns: 1.15fr 1.35fr 160px 150px 130px;
       gap: 10px;
       align-items: end;
     }
@@ -6419,6 +6419,7 @@ function fillColleagueSelects() {
 </svg></button>
                 <div class="obs corrective-panel">
                   <div class="corrective-grid">
+                    <div><label>Observații</label><textarea data-corrective-observation onchange="saveAuditContentState()" placeholder="Descrie constatarea"></textarea></div>
                     <div><label>Acțiune corectivă</label><textarea data-corrective-action onchange="saveAuditContentState()" placeholder="Descrie acțiunea necesară"></textarea></div>
                     <div><label>Termen</label><input type="date" data-corrective-due onchange="saveAuditContentState()"></div>
                     <div><label>Prioritate</label><select data-corrective-priority onchange="saveAuditContentState()"><option>Scăzută</option><option selected>Medie</option><option>Ridicată</option><option>Critică</option></select></div>
@@ -6637,7 +6638,7 @@ applyPreviousActionMarkers();
           chapterState.questions[key] = {
             answer: selects[0]?.value || 'ok',
             risk: selects[1]?.value || 'Risc scăzut',
-            observation: row.querySelector('[data-corrective-action]')?.value || '',
+            observation: row.querySelector('[data-corrective-observation]')?.value || '',
             correctiveAction: row.querySelector('[data-corrective-action]')?.value || '',
             correctiveResponsible: row.querySelector('[data-corrective-responsible]')?.value || '',
             correctiveDue: row.querySelector('[data-corrective-due]')?.value || '',
@@ -6714,8 +6715,10 @@ applyPreviousActionMarkers();
           if (selects[1]) selects[1].value = saved.risk || 'Fără riscuri';
 
           const obs = row.querySelector('.obs');
+          const observationTextarea = row.querySelector('[data-corrective-observation]');
           const textarea = row.querySelector('[data-corrective-action]');
-          if (textarea) textarea.value = saved.correctiveAction || saved.observation || '';
+          if (observationTextarea) observationTextarea.value = saved.nonconformObservation || (saved.correctiveAction ? (saved.observation || '') : '');
+          if (textarea) textarea.value = saved.correctiveAction || (!saved.nonconformObservation && saved.observation ? saved.observation : '') || '';
           const responsibleInput = row.querySelector('[data-corrective-responsible]');
           if (responsibleInput) responsibleInput.value = saved.correctiveResponsible || chapterState.responsible || '';
           const dueInput = row.querySelector('[data-corrective-due]');
@@ -6757,7 +6760,6 @@ applyPreviousActionMarkers();
     let applyingRemoteState = false;
     let pendingCloudTimer = null;
     let lastLocalWrite = 0;
-    let lastRemoteStateUpdatedAt = 0;
     let historyRemoteReady = false;
 
     function canUseFirebase() {
@@ -6822,13 +6824,11 @@ applyPreviousActionMarkers();
           if (!snapshot.exists) return;
           const data = snapshot.data();
           if (!data) return;
-          if (Array.isArray(data.history) && !historyRemoteReady) {
+          if (Array.isArray(data.history)) {
             mergeAuditHistory(data.history);
           }
           if (!data.state) return;
-          const remoteUpdatedAt = Number(data.updatedAt || 0);
-          if (remoteUpdatedAt && remoteUpdatedAt <= lastRemoteStateUpdatedAt) return;
-          lastRemoteStateUpdatedAt = remoteUpdatedAt || Date.now();
+          if (data.updatedAt && data.updatedAt <= lastLocalWrite) return;
 
           applyingRemoteState = true;
           if (Array.isArray(data.chaptersConfig)) {
@@ -6851,7 +6851,7 @@ applyPreviousActionMarkers();
             const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             historyRemoteReady = true;
             applyingRemoteState = true;
-            replaceAuditHistory(history);
+            mergeAuditHistory(history);
             applyingRemoteState = false;
             setSyncStatus('Istoric sincronizat', true);
           }, error => {
@@ -6876,7 +6876,6 @@ applyPreviousActionMarkers();
         const state = captureAuditContentState();
         const history = getAuditHistory();
         lastLocalWrite = Date.now();
-        lastRemoteStateUpdatedAt = Math.max(lastRemoteStateUpdatedAt, lastLocalWrite);
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).set({
           state,
           history,
@@ -6911,9 +6910,7 @@ applyPreviousActionMarkers();
       [...getAuditHistory(), ...(Array.isArray(remoteHistory) ? remoteHistory : [])].forEach(item => {
         if (!item || !item.id) return;
         const existing = map.get(item.id);
-        const itemTime = new Date(item.updatedAt || item.savedAt || 0).getTime();
-        const existingTime = new Date(existing?.updatedAt || existing?.savedAt || 0).getTime();
-        if (!existing || itemTime >= existingTime) map.set(item.id, item);
+        if (!existing || new Date(item.savedAt || 0) >= new Date(existing.savedAt || 0)) map.set(item.id, item);
       });
       const merged = normalizeAuditHistory([...map.values()]);
       localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(merged));
@@ -7395,7 +7392,7 @@ applyPreviousActionMarkers();
       const readHistory = query => query.get().then(snapshot => {
         const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         applyingRemoteState = true;
-        replaceAuditHistory(history);
+        mergeAuditHistory(history);
         applyingRemoteState = false;
         return history;
       });
@@ -7410,38 +7407,6 @@ applyPreviousActionMarkers();
             return [];
           }).catch(() => []);
         });
-    }
-
-    function refreshCloudCurrentState() {
-      if (!cloudReady || !cloudDb) return Promise.resolve();
-      return cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).get().then(snapshot => {
-        if (!snapshot.exists) return null;
-        const data = snapshot.data() || {};
-        if (Array.isArray(data.history) && !historyRemoteReady) mergeAuditHistory(data.history);
-        if (!data.state) return data;
-        const remoteUpdatedAt = Number(data.updatedAt || 0);
-        if (remoteUpdatedAt && remoteUpdatedAt <= lastRemoteStateUpdatedAt) return data;
-        lastRemoteStateUpdatedAt = remoteUpdatedAt || Date.now();
-        applyingRemoteState = true;
-        if (Array.isArray(data.chaptersConfig)) {
-          chapters = data.chaptersConfig;
-          persistChaptersLocal();
-          renderSections();
-        }
-        restoreAuditContentState(data.state);
-        applyingRemoteState = false;
-        renderDashboardStats();
-        renderHistory();
-        renderIssues(false);
-        return data;
-      }).catch(error => {
-        console.warn('Starea cloud nu a putut fi reîmprospătată.', error);
-        return null;
-      });
-    }
-
-    function refreshCloudData() {
-      return Promise.all([refreshCloudHistory(), refreshCloudCurrentState()]);
     }
 
     function getIssuesFromRecord(record) {
@@ -7473,7 +7438,7 @@ applyPreviousActionMarkers();
             chapter: chapter?.title || chapterId,
             question: String(question).replace(/##\d+$/, ''),
             risk: qState.risk || 'Risc scăzut',
-            observation: action,
+            observation: qState.observation || '',
             action,
             responsible: qState.correctiveResponsible || chapterState.responsible || (chapterState.responsibles || [])[0] || '',
             due: qState.correctiveDue || '',
@@ -7546,6 +7511,7 @@ applyPreviousActionMarkers();
         const chapterId = row.dataset.chapter;
         const chapter = chapters.find(ch => ch.id === chapterId);
         const selects = row.querySelectorAll('select');
+        const observation = row.querySelector('[data-corrective-observation]')?.value || '';
         const action = row.querySelector('[data-corrective-action]')?.value || '';
         return {
           depot,
@@ -7553,7 +7519,7 @@ applyPreviousActionMarkers();
           chapter: chapter?.title || '',
           question: row.querySelector('.question')?.innerText || '',
           risk: selects[1]?.value || '',
-          observation: action,
+          observation,
           action,
           due: row.querySelector('[data-corrective-due]')?.value || '',
           priority: row.querySelector('[data-corrective-priority]')?.value || 'Medie',
@@ -8236,7 +8202,8 @@ function saveChaptersConfig() {
             label: row.querySelector('.question')?.innerText || '',
             answer: row.querySelector('select')?.value === 'bad' ? 'Nu' : 'Da',
             risk: row.querySelectorAll('select')[1]?.value || '',
-            observation: row.querySelector('[data-corrective-action]')?.value || '',
+            observation: row.querySelector('[data-corrective-observation]')?.value || '',
+            correctiveAction: row.querySelector('[data-corrective-action]')?.value || '',
             nonconform: isAnswerNonconform(row)
           })),
           generalObs
@@ -8315,7 +8282,8 @@ function saveChaptersConfig() {
             <span>${escapeHtml(q.label)}</span>
             <strong>${escapeHtml(q.answer)}${q.nonconform ? ' · Neconform' : ''}</strong>
           </div>
-          ${q.observation ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Acțiune corectivă:</b><br>${escapeHtml(q.observation)}</div>` : ''}
+          ${q.observation ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Observații:</b><br>${escapeHtml(q.observation)}</div>` : ''}
+          ${q.correctiveAction ? `<div class="observation ${q.nonconform ? 'nonconform-observation' : ''}"><b>Acțiune corectivă:</b><br>${escapeHtml(q.correctiveAction)}</div>` : ''}
         `).join('');
 
         const generalObsHtml = ch.generalObs
@@ -9150,11 +9118,11 @@ function saveChaptersConfig() {
     renderHistory();
     renderDashboardStats();
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) refreshCloudData();
+      if (!document.hidden) refreshCloudHistory();
     });
 
-    window.addEventListener('focus', () => refreshCloudData());
-    setInterval(() => refreshCloudData(), 15000);
+    window.addEventListener('focus', () => refreshCloudHistory());
+    setInterval(() => refreshCloudHistory(), 15000);
 
     initCloudSync();
     fillColleagueSelects();
