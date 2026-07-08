@@ -6760,6 +6760,7 @@ applyPreviousActionMarkers();
     let applyingRemoteState = false;
     let pendingCloudTimer = null;
     let lastLocalWrite = 0;
+    let lastRemoteStateUpdatedAt = 0;
     let historyRemoteReady = false;
 
     function canUseFirebase() {
@@ -6824,11 +6825,13 @@ applyPreviousActionMarkers();
           if (!snapshot.exists) return;
           const data = snapshot.data();
           if (!data) return;
-          if (Array.isArray(data.history)) {
+          if (Array.isArray(data.history) && !historyRemoteReady) {
             mergeAuditHistory(data.history);
           }
           if (!data.state) return;
-          if (data.updatedAt && data.updatedAt <= lastLocalWrite) return;
+          const remoteUpdatedAt = Number(data.updatedAt || 0);
+          if (remoteUpdatedAt && remoteUpdatedAt <= lastRemoteStateUpdatedAt) return;
+          lastRemoteStateUpdatedAt = remoteUpdatedAt || Date.now();
 
           applyingRemoteState = true;
           if (Array.isArray(data.chaptersConfig)) {
@@ -6851,7 +6854,7 @@ applyPreviousActionMarkers();
             const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             historyRemoteReady = true;
             applyingRemoteState = true;
-            mergeAuditHistory(history);
+            replaceAuditHistory(history);
             applyingRemoteState = false;
             setSyncStatus('Istoric sincronizat', true);
           }, error => {
@@ -6876,6 +6879,7 @@ applyPreviousActionMarkers();
         const state = captureAuditContentState();
         const history = getAuditHistory();
         lastLocalWrite = Date.now();
+        lastRemoteStateUpdatedAt = Math.max(lastRemoteStateUpdatedAt, lastLocalWrite);
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).set({
           state,
           history,
