@@ -4782,6 +4782,45 @@
   .login-card-logo{display:none!important;}
 }
 
+
+
+    /* Fix final: butonul Editează agenții pe depozit în dreapta jos, fără schimbări funcționale */
+    #audit .card.span-12:first-of-type .agent-editor {
+      margin-top: 18px !important;
+      padding-top: 16px !important;
+      border-top: 1px solid var(--line) !important;
+      display: flex !important;
+      justify-content: flex-end !important;
+      align-items: flex-end !important;
+      width: 100% !important;
+      text-align: right !important;
+    }
+
+    #audit .card.span-12:first-of-type .agent-toggle {
+      margin: 0 0 12px auto !important;
+      display: inline-flex !important;
+      width: fit-content !important;
+      align-self: flex-end !important;
+      justify-self: flex-end !important;
+    }
+
+    #audit .card.span-12:first-of-type .agent-editor:has(.agent-editor-panel:not(.hidden)) {
+      display: block !important;
+      text-align: right !important;
+    }
+
+    #audit .card.span-12:first-of-type .agent-editor-panel {
+      width: 100% !important;
+      margin-top: 12px !important;
+      text-align: left !important;
+    }
+
+    @media (max-width: 980px) {
+      #audit .card.span-12:first-of-type .agent-toggle {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+    }
 </style>
 </head>
 <body class="login-active">
@@ -4903,8 +4942,8 @@
               <div><label>Perioada auditului, de la</label><input type="date" id="auditPeriodStart"></div>
               <div><label>Perioada auditului, până la</label><input type="date" id="auditPeriodEnd"></div>
             </div>
-            <div class="agent-editor">
-              <button class="btn ghost agent-toggle" type="button" onclick="toggleDepotAgentsEditor()">Editează agenții pe depozit</button>
+            <div class="agent-editor" style="display:flex;justify-content:flex-end;align-items:flex-end;width:100%;text-align:right;">
+              <button class="btn primary agent-toggle" style="margin:0 0 12px auto;display:inline-flex;width:fit-content;align-self:flex-end;" type="button" onclick="toggleDepotAgentsEditor()">Editează agenții pe depozit</button>
               <div id="depotAgentsEditorWrap" class="agent-editor-panel hidden">
                 <div class="section-title compact-title"><div><h3>Editare agenți pe depozit</h3><p>Poți edita, adăuga sau șterge agenții pentru depozitul selectat.</p></div></div>
                 <div id="depotAgentsEditor"></div>
@@ -4912,11 +4951,19 @@
             </div>
           </div>
 
-          
+          <div class="card span-12" id="activitiesCard">
+            <div class="section-title"><div><h3>2. Activități desfășurate</h3><p>Aceste răspunsuri controlează capitolele afișate.</p></div></div>
+            <div class="form-grid">
+              <div><label>Autoturism de serviciu</label><select id="activityServiceCar" onchange="handleActivitiesChange()"><option value="Da" selected>Da</option><option value="Nu">Nu</option></select></div>
+              <div><label>Activitate de teren și livrare</label><select id="activityFieldDelivery" onchange="handleActivitiesChange()"><option value="Da" selected>Da</option><option value="Nu">Nu</option></select></div>
+              <div><label>Gestiune operațională</label><select id="activityStock" onchange="handleActivitiesChange()"><option value="Da" selected>Da</option><option value="Nu">Nu</option></select></div>
+              <div><label>Activitate de montaj</label><select id="activityMount" onchange="handleActivitiesChange()"><option value="Da" selected>Da</option><option value="Nu">Nu</option></select></div>
+            </div>
+          </div>
 
-          <div class="card span-12">
+          <div class="card span-12" id="vehicleDetailsCard">
             <div class="section-title">
-              <div><h3>2. Detalii Autoturism</h3><p>Autoturismele alocate depozitului auditat.</p></div>
+              <div><h3>3. Detalii Autoturism</h3><p>Autoturismele alocate depozitului auditat.</p></div>
               <button class="btn primary add-question-btn" type="button" onclick="addVehicle()">Adaugă autoturism</button>
             </div>
             <div id="vehiclesContainer" class="vehicles-container"></div>
@@ -5388,8 +5435,13 @@ function getVehicleValues() {
   });
 }
 
+function getVehicleFieldDisplayLabel(field) {
+  return field === 'Anul' ? 'Anul de fabricație' : field;
+}
+
 function getVehicleFieldHtml(field, vehicle) {
   const value = vehicle[field] || '';
+  const displayField = getVehicleFieldDisplayLabel(field);
 
   if (field === 'Regim proprietate, leasing operațional, leasing financiar sau proprietatea companiei') {
     const options = ['Leasing financiar', 'Leasing operațional', 'Proprietatea companiei'];
@@ -5435,10 +5487,10 @@ function getVehicleFieldHtml(field, vehicle) {
     `;
   }
 
-  const placeholder = 'Completează ' + field.toLowerCase();
+  const placeholder = 'Completează ' + displayField.toLowerCase();
   return `
     <div>
-      <label>${field}</label>
+      <label>${displayField}</label>
       <input data-vehicle-field="${field}" value="${escapeHtml(value)}" placeholder="${escapeHtml(placeholder)}">
     </div>
   `;
@@ -5618,7 +5670,7 @@ function fillColleagueSelects() {
     }
 
     let chapters = [
-      { id:'car', title:'Autoturism', always:true, fields:['Kilometri odometru','Kilometri efectuați în weekend','Kilometri efectuați după ora 17:00','Kilometri total parcurși','Kilometri în interes personal'], questions:[
+      { id:'car', title:'Autoturism', always:true, fields:['Kilometri odometru','Kilometri efectuați în perioada auditată','Kilometri efectuați în weekend','Kilometri efectuați după ora 17:00','Kilometri total parcurși','Kilometri în interes personal'], questions:[
         ['Aspect exterior în stare bună?', 'no'], ['Aspect interior în stare bună?', 'no'], ['Au existat daune neraportate?', 'yes']
       ]},
       { id:'image', title:'Imagine profesională', always:true, fields:[], questions:[
@@ -5647,13 +5699,34 @@ function fillColleagueSelects() {
     const tabs = document.getElementById('tabs');
     const sections = document.getElementById('sections');
 
+    function getActivityValue(id) {
+      return document.getElementById(id)?.value || 'Da';
+    }
+
+    function updateActivityVisibility() {
+      const vehicleCard = document.getElementById('vehicleDetailsCard');
+      if (vehicleCard) vehicleCard.classList.toggle('hidden', getActivityValue('activityServiceCar') === 'Nu');
+    }
+
+    function handleActivitiesChange() {
+      const activeChapter = document.querySelector('.audit-section.active')?.id?.replace('section-', '') || '';
+      updateActivityVisibility();
+      renderSectionsPreservingContent(activeChapter);
+      saveAuditContentState();
+    }
+
     function isActiveChapter(ch) {
+      if (ch.id === 'car') return getActivityValue('activityServiceCar') !== 'Nu';
+      if (ch.id === 'field') return getActivityValue('activityFieldDelivery') !== 'Nu';
+      if (['stock', 'billing', 'perishable', 'rx'].includes(ch.id)) return getActivityValue('activityStock') !== 'Nu';
+      if (ch.id === 'mount') return getActivityValue('activityMount') !== 'Nu';
       return true;
     }
 
     function renderSections() {
       tabs.innerHTML = '';
       sections.innerHTML = '';
+      updateActivityVisibility();
       const active = chapters.filter(isActiveChapter);
       document.getElementById('activeSections').innerText = active.length;
 
@@ -5681,7 +5754,7 @@ function fillColleagueSelects() {
 
             </div>
           </div>
-          ${ch.id === 'car' ? `<div id="carKmAlert" class="km-alert">Atenție: kilometrii efectuați în weekend sau după ora 17:00 depășesc 30% din kilometrii odometru.</div>` : ''}
+          ${ch.id === 'car' ? `<div id="carKmAlert" class="km-alert">Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.</div>` : ''}
           ${ch.id !== 'car' ? `<div class="responsible-box">
             <div class="responsible-list" data-responsibles="${ch.id}">
               <div class="responsible-item">
@@ -5902,6 +5975,10 @@ recalc();
         auditPeriodEnd: document.getElementById('auditPeriodEnd')?.value || '',
         employeeDepot: document.getElementById('employeeDepot')?.value || '',
         auditorSelect: document.getElementById('auditorSelect')?.value || '',
+        activityServiceCar: document.getElementById('activityServiceCar')?.value || 'Da',
+        activityFieldDelivery: document.getElementById('activityFieldDelivery')?.value || 'Da',
+        activityStock: document.getElementById('activityStock')?.value || 'Da',
+        activityMount: document.getElementById('activityMount')?.value || 'Da',
         customAgents: getCustomAgents(),
         vehicles: getVehicleValues(),
         vehiclesDepotSignature: document.getElementById('employeeDepot')?.value || '',
@@ -5951,6 +6028,11 @@ recalc();
       if (document.getElementById('auditPeriodEnd') && state.auditPeriodEnd) document.getElementById('auditPeriodEnd').value = state.auditPeriodEnd;
       if (document.getElementById('employeeDepot') && state.employeeDepot) document.getElementById('employeeDepot').value = state.employeeDepot;
       if (document.getElementById('auditorSelect') && state.auditorSelect) document.getElementById('auditorSelect').value = state.auditorSelect;
+      ['activityServiceCar','activityFieldDelivery','activityStock','activityMount'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && state[id]) el.value = state[id];
+      });
+      updateActivityVisibility();
       if (Array.isArray(state.customAgents)) localStorage.setItem(CUSTOM_AGENTS_KEY, JSON.stringify(state.customAgents));
       renderDepotAgentsEditor();
 
@@ -5982,6 +6064,9 @@ recalc();
           if (Object.prototype.hasOwnProperty.call(chapterState.fields, key)) {
             const input = box.querySelector('input');
             if (input) input.value = chapterState.fields[key];
+          } else if (label === 'Kilometri efectuați în weekend' && Object.prototype.hasOwnProperty.call(chapterState.fields, 'Kilometri în weekend##1')) {
+            const input = box.querySelector('input');
+            if (input) input.value = chapterState.fields['Kilometri în weekend##1'];
           }
         });
 
@@ -6151,28 +6236,29 @@ recalc();
       if (!section || !alert) return;
 
       const fields = [...section.querySelectorAll('.field-box')];
-      let odometer = 0;
+      let auditedPeriodKm = 0;
       let weekend = 0;
       let after17 = 0;
 
       fields.forEach(box => {
-        const label = box.querySelector('label')?.innerText || '';
+        const label = (box.querySelector('label')?.innerText || '').trim();
         const value = box.querySelector('input')?.value || '';
-        if (label === 'Kilometri odometru') odometer = parseAuditNumber(value);
+        if (label === 'Kilometri efectuați în perioada auditată') auditedPeriodKm = parseAuditNumber(value);
         if (label === 'Kilometri efectuați în weekend') weekend = parseAuditNumber(value);
+        if (label === 'Kilometri în weekend') weekend = parseAuditNumber(value);
         if (label === 'Kilometri efectuați după ora 17:00') after17 = parseAuditNumber(value);
       });
 
-      const weekendExceeds = odometer > 0 && weekend / odometer > 0.30;
-      const after17Exceeds = odometer > 0 && after17 / odometer > 0.30;
-      alert.classList.toggle('show', weekendExceeds || after17Exceeds);
+      const personalKm = after17 + weekend;
+      const percent = auditedPeriodKm > 0 ? (personalKm / auditedPeriodKm) * 100 : 0;
+      const exceeded = personalKm > 0 && auditedPeriodKm > 0 && percent > 30;
 
-      if (weekendExceeds && after17Exceeds) {
-        alert.innerText = 'Atenție: kilometrii efectuați în weekend și după ora 17:00 depășesc 30% din kilometrii odometru.';
-      } else if (weekendExceeds) {
-        alert.innerText = 'Atenție: kilometrii efectuați în weekend depășesc 30% din kilometrii odometru.';
-      } else if (after17Exceeds) {
-        alert.innerText = 'Atenție: kilometrii efectuați după ora 17:00 depășesc 30% din kilometrii odometru.';
+      alert.classList.toggle('show', exceeded);
+
+      if (exceeded) {
+        alert.innerText = `S-a depășit pragul Km realizați în interes personal cu ${Math.round(personalKm).toLocaleString('ro-RO')} km, reprezentând ${percent.toFixed(1).replace('.', ',')}% din Km total efectuați.`;
+      } else {
+        alert.innerText = 'Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.';
       }
     }
 
@@ -6303,7 +6389,9 @@ recalc();
     autofillVehiclesFromSelectedDepot(false);
     renderSections();
       restoreAuditContentState(state);
-      activateTab(chapterId || state.activeTab || chapters.filter(isActiveChapter)[0]?.id);
+      const activeIds = chapters.filter(isActiveChapter).map(ch => ch.id);
+      const target = activeIds.includes(chapterId) ? chapterId : (activeIds.includes(state.activeTab) ? state.activeTab : activeIds[0]);
+      activateTab(target);
     }
 
 
@@ -6444,15 +6532,37 @@ function saveChaptersConfig() {
       return true;
     }
 
+    function normalizeAuditChapters() {
+      const car = chapters.find(ch => ch.id === 'car');
+      if (!car) return;
+
+      car.fields = (car.fields || []).map(field => {
+        if (field === 'Kilometri în weekend') return 'Kilometri efectuați în weekend';
+        if (field === 'Kilometri efectuati in weekend') return 'Kilometri efectuați în weekend';
+        if (field === 'Kilometri efectuați in weekend') return 'Kilometri efectuați în weekend';
+        if (field === 'Kilometri efectuati în weekend') return 'Kilometri efectuați în weekend';
+        return field;
+      });
+
+      if (!car.fields.includes('Kilometri efectuați în perioada auditată')) {
+        const odoIndex = car.fields.indexOf('Kilometri odometru');
+        const insertAt = odoIndex >= 0 ? odoIndex + 1 : 0;
+        car.fields.splice(insertAt, 0, 'Kilometri efectuați în perioada auditată');
+      }
+    }
+
     function loadChaptersConfig() {
       const saved = localStorage.getItem('audit-chapters-v4');
-      if (!saved) return;
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) chapters = parsed;
-      } catch (error) {
-        console.warn('Configurația întrebărilor nu a putut fi încărcată.', error);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) chapters = parsed;
+        } catch (error) {
+          console.warn('Configurația întrebărilor nu a putut fi încărcată.', error);
+        }
       }
+      normalizeAuditChapters();
+      saveChaptersConfig();
     }
 
     function addQuestion(chapterId) {
@@ -6574,11 +6684,49 @@ function saveChaptersConfig() {
       return value;
     }
 
+
+    function getCarKmAlertData() {
+      const section = document.getElementById('section-car');
+      if (!section) return { exceeded: false, items: [], highest: null };
+
+      const fields = [...section.querySelectorAll('.field-box')];
+      let auditedPeriodKm = 0;
+      let weekend = 0;
+      let after17 = 0;
+
+      fields.forEach(box => {
+        const label = (box.querySelector('label')?.innerText || '').trim();
+        const value = box.querySelector('input')?.value || '';
+        if (label === 'Kilometri efectuați în perioada auditată') auditedPeriodKm = parseAuditNumber(value);
+        if (label === 'Kilometri efectuați în weekend') weekend = parseAuditNumber(value);
+        if (label === 'Kilometri în weekend') weekend = parseAuditNumber(value);
+        if (label === 'Kilometri efectuați după ora 17:00') after17 = parseAuditNumber(value);
+      });
+
+      const personalKm = after17 + weekend;
+      const percent = auditedPeriodKm > 0 ? (personalKm / auditedPeriodKm) * 100 : 0;
+
+      if (personalKm > 0 && auditedPeriodKm > 0 && percent > 30) {
+        const item = {
+          label: 'Km realizați în interes personal',
+          value: personalKm,
+          referenceValue: auditedPeriodKm,
+          thresholdValue: auditedPeriodKm * 0.3,
+          exceededValue: personalKm - (auditedPeriodKm * 0.3),
+          percent
+        };
+        return { exceeded: true, items: [item], highest: item };
+      }
+
+      return { exceeded: false, items: [], highest: null };
+    }
+
+
     function getAuditReportData() {
       const rows = [...document.querySelectorAll('.check-row')];
       const badRows = rows.filter(isAnswerNonconform);
       const score = rows.length ? Math.round(((rows.length - badRows.length) / rows.length) * 100) : 100;
-      const status = score >= 90 ? 'Bine' : score >= 75 ? 'Necesită atenție' : 'Critic';
+      const status = score >= 95 ? 'Foarte bine' : score >= 80 ? 'Bine' : score >= 70 ? 'Necesită atenție' : 'Critic';
 
       const activeChapters = chapters.filter(isActiveChapter).map(ch => {
         const section = document.getElementById('section-' + ch.id);
@@ -6617,13 +6765,14 @@ function saveChaptersConfig() {
         periodStart: formatDate(document.getElementById('auditPeriodStart')?.value || ''),
         periodEnd: formatDate(document.getElementById('auditPeriodEnd')?.value || ''),
         evaluator: document.getElementById('auditorSelect')?.selectedOptions[0]?.text || '',
+        carKmAlert: getCarKmAlertData(),
         chapters: activeChapters
       };
     }
 
 
     function makePdfFileName(data) {
-      const clean = value => (value || '')
+      const cleanDepot = value => (value || '')
         .toString()
         .trim()
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -6631,8 +6780,11 @@ function saveChaptersConfig() {
         .replace(/^-+|-+$/g, '')
         .toLowerCase();
 
-      const date = clean(data.date) || new Date().toISOString().slice(0, 10);
-      const depot = clean(data.depot) || 'depozit';
+      const rawDate = (data.periodStart || data.date || new Date().toISOString().slice(0, 10)).toString().trim();
+      const date = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+        ? rawDate
+        : (rawDate.replace(/[^0-9]+/g, '-').replace(/^-+|-+$/g, '') || new Date().toISOString().slice(0, 10));
+      const depot = cleanDepot(data.depot) || 'depozit';
       return `${date}_${depot}_audit-depozit`;
     }
 
@@ -6640,7 +6792,7 @@ function saveChaptersConfig() {
     function generateGrowUpPDF() {
       const data = getAuditReportData();
       const pdfFileName = makePdfFileName(data);
-
+      const avveroLogoDataUri = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPCEtLSBDcmVhdG9yOiBDb3JlbERSQVcgKE9FTSBWZXJzaW9uKSAtLT4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIHdpZHRoPSIxMjBtbSIgaGVpZ2h0PSI1MG1tIiB2ZXJzaW9uPSIxLjEiIHN0eWxlPSJzaGFwZS1yZW5kZXJpbmc6Z2VvbWV0cmljUHJlY2lzaW9uOyB0ZXh0LXJlbmRlcmluZzpnZW9tZXRyaWNQcmVjaXNpb247IGltYWdlLXJlbmRlcmluZzpvcHRpbWl6ZVF1YWxpdHk7IGZpbGwtcnVsZTpldmVub2RkOyBjbGlwLXJ1bGU6ZXZlbm9kZCIKdmlld0JveD0iNjUwMCAxMTIwMCA4NTAwIDc0MDAiCiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIKIHhtbG5zOnhvZG09Imh0dHA6Ly93d3cuY29yZWwuY29tL2NvcmVsZHJhdy9vZG0vMjAwMyI+CiA8ZGVmcz4KICA8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgogICA8IVtDREFUQVsKICAgIC5maWw0IHtmaWxsOiM1NUMwRDY7ZmlsbC1ydWxlOm5vbnplcm99CiAgICAuZmlsMyB7ZmlsbDojNkYzQzhEO2ZpbGwtcnVsZTpub256ZXJvfQogICAgLmZpbDUge2ZpbGw6IzE3QTFCRjtmaWxsLXJ1bGU6bm9uemVyb30KICAgIC5maWwyIHtmaWxsOiMxMTdBOUQ7ZmlsbC1ydWxlOm5vbnplcm99CiAgICAuZmlsMCB7ZmlsbDojMjczMzM4O2ZpbGwtcnVsZTpub256ZXJvfQogICAgLmZpbDEge2ZpbGw6IzAwQTBFMztmaWxsLXJ1bGU6bm9uemVyb30KICAgXV0+CiAgPC9zdHlsZT4KIDwvZGVmcz4KIDxnIGlkPSJMYXllcl94MDAyMF8xIj4KICA8bWV0YWRhdGEgaWQ9IkNvcmVsQ29ycElEXzBDb3JlbC1MYXllciIvPgogIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNNjgyNS4zNiAxNzkzNS42MWMwLDEzNy40MSA4My4xMiwyMDYuMDIgMjQ5LjM5LDIwNi4wMmwzMDMuNjUgMCAwIC00MTIuMDcgLTMwMy42NSAwYy0xNjYuMjcsMCAtMjQ5LjM5LDY4LjY3IC0yNDkuMzksMjA2LjA1em01NTMuMDQgLTM1Ny45YzAsLTEwNC4wNyAtMjcuMTEsLTE4MC42OSAtODEuMzEsLTIyOS44NyAtNTQuMjQsLTQ5LjEgLTEyNC43LC03My43MyAtMjExLjQ4LC03My43MyAtNjUuMDQsMCAtMTI4LjY5LDkuNzcgLTE5MC44NSwyOS4yMiAtNjIuMiwxOS41NiAtMTE3Ljg0LDQ1LjkzIC0xNjcsNzkuMjJsLTc1LjkgLTEzMC4xN2MzMS43NywtMjEuNjYgNjYuODYsLTQwLjQzIDEwNS4yMiwtNTYuMzggMzguMjYsLTE1LjkgNzcuNjYsLTI5LjI4IDExOC4xOCwtNDAuMTQgNDAuNDQsLTEwLjc5IDgwLjU0LC0xOS4xMiAxMjAuMzUsLTI0Ljk0IDM5Ljc1LC01Ljc1IDc2Ljk4LC04LjYxIDExMS43MiwtOC42MSA5Mi40NywwIDE3NC4yLDEwLjc2IDI0NS4wNywzMi40OSA3MC43OSwyMS42OSAxMzAuODYsNTIuODEgMTgwLDkzLjI0IDQ5LjE0LDQwLjU0IDg2LjM4LDg4LjYyIDExMS43MywxNDQuMjUgMjUuMjUsNTUuNjcgMzcuOTMsMTE3LjQ4IDM3LjkzLDE4NS40MmwwIDcxNS43NSAtNjA3LjMxIDBjLTE5Ni42MSwwIC0zNDEuNTcsLTI5LjYgLTQzNC44MSwtODguOTcgLTkzLjI5LC01OS4yIC0xMzkuOTEsLTE0OC44NyAtMTM5LjkxLC0yNjguODggMCwtMTIwLjAzIDQ2LjYyLC0yMDkuNjcgMTM5LjkxLC0yNjguOTYgOTMuMjQsLTU5LjI3IDIzOC4yLC04OC45NCA0MzQuODEsLTg4Ljk0bDMwMy42NSAweiIvPgogIDxwb2x5Z29uIGNsYXNzPSJmaWwwIiBwb2ludHM9Ijg3NTguNzYsMTgyOTMuNDYgODI4MS42MywxODI5My40NiA3ODQ3LjgxLDE3MTY1LjU5IDgxNTEuNDYsMTcxNjUuNTkgODUwOS4zNiwxODEwOS4xMSA4NTMxLjAyLDE4MTA5LjExIDg4ODguODYsMTcxNjUuNTkgOTE5Mi41MywxNzE2NS41OSAiLz4KICA8cG9seWdvbiBjbGFzcz0iZmlsMCIgcG9pbnRzPSIxMDIxNC45OSwxODI5My40NiA5NzM3Ljg0LDE4MjkzLjQ2IDkzMDQuMDEsMTcxNjUuNTkgOTYwNy42NiwxNzE2NS41OSA5OTY1LjU3LDE4MTA5LjExIDk5ODcuMjQsMTgxMDkuMTEgMTAzNDUuMSwxNzE2NS41OSAxMDY0OC43MywxNzE2NS41OSAiLz4KICA8cGF0aCBjbGFzcz0iZmlsMCIgZD0iTTExMzg3LjcgMTcyNjMuMjRjLTQxLjkxLDAgLTgwLjk3LDcuOTUgLTExNy4wNiwyMy44NSAtMzYuMTYsMTUuOTIgLTY3LjY2LDQxLjIxIC05NC4zNiw3NS45MiAtMjYuNzgsMzQuNjggLTQ4LjUxLDc5LjU1IC02NS4xMywxMzQuNDggLTE2LjU4LDU0Ljk2IC0yNS42NCwxMjEuNDIgLTI3LjA1LDE5OS41M2w2MDcuMjcgMGMwLC03NS4xNSAtOC42OCwtMTQwLjIzIC0yNi4wNCwtMTk1LjIzIC0xNy4zOSwtNTQuODkgLTQwLjE0LC0xMDAuMDkgLTY4LjMzLC0xMzUuNSAtMjguMTksLTM1LjQ2IC02MC43MSwtNjEuNDkgLTk3LjU4LC03OC4wNyAtMzYuODYsLTE2LjY0IC03NC4xNSwtMjQuOTggLTExMS43MiwtMjQuOTh6bTc1LjkxIDkyMS43OGM3MC44OCwwIDEzNi45OSwtMTIuMjggMTk4LjQ0LC0zNi44NiA2MS40OSwtMjQuNjMgMTIxLjg1LC01OS4zMSAxODEuMTIsLTEwNC4xMWw4Ni43OCAxMzAuMWMtMjcuNDgsMjQuNiAtNTkuNjUsNDcuMDMgLTk2LjUyLDY3LjIxIC0zNi44NiwyMC4zMiAtNzYuNjksMzcuMjkgLTExOS4zMSw1MS4wNCAtNDIuNjksMTMuNjYgLTg3LjEsMjQuNTYgLTEzMy4zOCwzMi40OSAtNDYuMjUsNy45NCAtOTIuNTQsMTEuOTIgLTEzOC44MiwxMS45MiAtMTAyLjY2LDAgLTE5Ni4yNSwtMTMuMzYgLTI4MC44MSwtNDAuMSAtODQuNjMsLTI2Ljc0IC0xNTYuNTcsLTY1LjggLTIxNS44NywtMTE3LjEyIC01OS4yNiwtNTEuMyAtMTA1LjEzLC0xMTQuNTggLTEzNy42NSwtMTg5Ljc5IC0zMi42LC03NS4xNSAtNDguODYsLTE2MS45IC00OC44NiwtMjYwLjI0IDAsLTk2Ljg2IDE1LjU2LC0xODMuMjkgNDYuNjcsLTI1OS4xNiAzMS4wNSwtNzUuOTYgNzQuNDcsLTEzOS41NyAxMzAuMTEsLTE5MC44NiA1NS42NiwtNTEuMzMgMTIxLjgxLC05MC4zNyAxOTguNDMsLTExNy4xNiA3Ni42MywtMjYuNjkgMTYxLjIyLC00MC4wNyAyNTMuNzYsLTQwLjA3IDg2Ljc4LDAgMTY4LjQ1LDEyLjk1IDI0NS4xNCwzOS4wMiA3Ni41OSwyNS45OSAxNDMuMTIsNjMuOTYgMTk5LjUsMTEzLjg0IDU2LjQxLDQ5LjkxIDEwMS4yMSwxMTAuMjggMTM0LjQ4LDE4MS4xMiAzMy4yNiw3MC44NyA0OS44NCwxNTEuMDkgNDkuODQsMjQwLjczbDAgMTUxLjggLTkyNi4wNyAwYzE3LjM1LDEyMC4wMiA1OC45MSwyMDYuMDIgMTI0Ljc0LDI1OC4xMiA2NS43Niw1Mi4wNCAxNDguNTUsNzguMDggMjQ4LjI4LDc4LjA4eiIvPgogIDxwYXRoIGNsYXNzPSJmaWwwIiBkPSJNMTMxMjIuODMgMTczMTcuNDRsLTI2MC4yNCAwYy05OC4zNiwwIC0xNzMuNTcsMjYuNDIgLTIyNS42LDc5LjE5IC01Mi4wNCw1Mi43OCAtNzguMDQsMTMxLjI0IC03OC4wNCwyMzUuMzRsMCA2NjEuNDkgLTMwMy42NyAwIDAgLTY2MS40OWMwLC0xNDcuNSA0Ni42LC0yNjIuMTEgMTM5LjkxLC0zNDMuNzUgOTMuMjQsLTgxLjcgMjI3LjMsLTEyMi42MyA0MDIuMzUsLTEyMi42M2wzMjUuMjkgMCAwIDE1MS44NXoiLz4KICA8cGF0aCBjbGFzcz0iZmlsMCIgZD0iTTEzODM4LjQ4IDE4MTk1Ljg4YzQ2LjI4LDAgODkuNzEsLTguNzEgMTMwLjEsLTI2LjA3IDQwLjY0LC0xNy4zMiA3NS44NSwtNDQuNDQgMTA2LjM3LC04MS4zIDMwLjMzLC0zNi45MSA1NC41LC04NC45MiA3Mi42LC0xNDQuMyAxOC4wNiwtNTkuMiAyNy4yLC0xMzAuOCAyNy4yLC0yMTQuNjUgMCwtODMuODMgLTkuMTQsLTE1NS40NSAtMjcuMiwtMjE0LjcyIC0xOC4xLC01OS4yNiAtNDIuMjcsLTEwNy4zNyAtNzIuNiwtMTQ0LjI0IC0zMC41MiwtMzYuOSAtNjUuNzMsLTYzLjk3IC0xMDYuMzcsLTgxLjM2IC00MC4zOSwtMTcuMjggLTgzLjgyLC0yNiAtMTMwLjEsLTI2IC00Ni4yNSwwIC04OS43MSw4LjcyIC0xMzAuMTEsMjYgLTQwLjM5LDE3LjM5IC03NS44NCw0NC40NiAtMTA2LjM5LDgxLjM2IC0zMC4yNywzNi44NyAtNTQuNDcsODQuOTggLTcyLjU3LDE0NC4yNCAtMTguMDYsNTkuMjcgLTI2Ljk5LDEzMC44OSAtMjYuOTksMjE0LjcyIDAsODMuODUgOC45MywxNTUuNDUgMjYuOTksMjE0LjY1IDE4LjEsNTkuMzggNDIuMywxMDcuMzkgNzIuNTcsMTQ0LjMgMzAuNTUsMzYuODYgNjYsNjMuOTggMTA2LjM5LDgxLjMgNDAuNCwxNy4zNiA4My44NiwyNi4wNyAxMzAuMTEsMjYuMDd6bTAgLTEwNzMuNTdjOTYuOTgsMCAxODYuMjMsMTMuMzggMjY3Ljk3LDQwLjA3IDgxLjQ1LDI2Ljc5IDE1MS40OCw2NS44MyAyMDkuMjMsMTE3LjE2IDU3Ljc1LDUxLjI5IDEwMy4wOCwxMTQuOSAxMzUuNSwxOTAuODYgMzIuNjMsNzUuODcgNDguODYsMTYyLjMgNDguODYsMjU5LjE2IDAsOTguMzQgLTE2LjIzLDE4NS4wOSAtNDguODYsMjYwLjI0IC0zMi40Miw3NS4yMSAtNzcuNzUsMTM4LjQ5IC0xMzUuNSwxODkuNzkgLTU3Ljc1LDUxLjMyIC0xMjcuNzgsOTAuMzggLTIwOS4yMywxMTcuMTIgLTgxLjc0LDI2Ljc0IC0xNzAuOTksNDAuMSAtMjY3Ljk3LDQwLjEgLTk4LjM5LDAgLTE4Ny44OSwtMTMuMzYgLTI2OC44OSwtNDAuMSAtODEuMDMsLTI2Ljc0IC0xNTAuMzIsLTY1LjggLTIwOC4zMSwtMTE3LjEyIC01Ny43OSwtNTEuMyAtMTAyLjkxLC0xMTQuNTggLTEzNS40NCwtMTg5Ljc5IC0zMi41OSwtNzUuMTUgLTQ4Ljg2LC0xNjEuOSAtNDguODYsLTI2MC4yNCAwLC05Ni44NiAxNi4yNywtMTgzLjI5IDQ4Ljg2LC0yNTkuMTYgMzIuNTMsLTc1Ljk2IDc3LjY1LC0xMzkuNTcgMTM1LjQ0LC0xOTAuODYgNTcuOTksLTUxLjMzIDEyNy4yOCwtOTAuMzcgMjA4LjMxLC0xMTcuMTYgODEsLTI2LjY5IDE3MC41LC00MC4wNyAyNjguODksLTQwLjA3eiIvPgogIDxwYXRoIGNsYXNzPSJmaWwxIiBkPSJNMTE1NTAuNSAxMjA2Mi40Nmw3My44IDE5MC4zNWMtMjIuMjIsLTY0LjM0IC00Ni44OCwtMTI3Ljg4IC03My44LC0xOTAuMzV6Ii8+CiAgPHBhdGggY2xhc3M9ImZpbDIiIGQ9Ik05NDEwLjk0IDE0MTQyLjAxYy0yNDQuNDksLTYzMC42NiAtMjQwLjIsLTEyOTYuMzkgLTM1LjE4LC0xODg5LjJsLTEzNDAuMzUgMzQ1Ny4yM2M4NDUuMjIsMzI3LjY2IDE3NTMuNDUsMjA4LjY2IDI0NjQuNjMsLTI0MS44OCAtNDc4Ljg5LC0zMDMuMzggLTg2OC40NCwtNzU3LjA1IC0xMDg5LjEsLTEzMjYuMTV6Ii8+CiAgPHBhdGggY2xhc3M9ImZpbDMiIGQ9Ik05Mzc1Ljc2IDEyMjUyLjgxbDczLjgxIC0xOTAuMzVjLTI2Ljk0LDYyLjQ3IC01MS41NSwxMjYuMDEgLTczLjgxLDE5MC4zNXoiLz4KICA8cGF0aCBjbGFzcz0iZmlsNCIgZD0iTTEyOTY0LjY1IDE1NzEwLjA0bC0xMzQwLjM1IC0zNDU3LjIzYzIwNSw1OTIuODUgMjA5LjMxLDEyNTguNTQgLTM1LjIsMTg4OS4yIC0yMjAuNjcsNTY5LjEgLTYxMC4yLDEwMjIuNzcgLTEwODkuMDYsMTMyNi4xNSA3MTEuMTYsNDUwLjU0IDE2MTkuNDIsNTY5LjU0IDI0NjQuNjEsMjQxLjg4eiIvPgogIDxwYXRoIGNsYXNzPSJmaWw1IiBkPSJNMTE1NTAuNSAxMjA2Mi40NmwtMjcxLjA3IC02OTkuMTggLTE1NTguODEgMCAtMjcxLjA1IDY5OS4xOCAtNzMuODEgMTkwLjM1Yy0yMDUuMDIsNTkyLjgxIC0yMDkuMzEsMTI1OC41NCAzNS4xOCwxODg5LjIgMjIwLjY2LDU2OS4xIDYxMC4yMSwxMDIyLjc3IDEwODkuMSwxMzI2LjE1IDQ3OC44NiwtMzAzLjM4IDg2OC4zOSwtNzU3LjA1IDEwODkuMDYsLTEzMjYuMTUgMjQ0LjUxLC02MzAuNjYgMjQwLjIsLTEyOTYuMzUgMzUuMiwtMTg4OS4ybC03My44IC0xOTAuMzV6Ii8+CiA8L2c+Cjwvc3ZnPgo=';
 
       const vehiclesHtml = data.vehicles && data.vehicles.length ? `
         <section class="chapter">
@@ -6650,7 +6802,7 @@ function saveChaptersConfig() {
               <h4>Autoturism ${index + 1}</h4>
               ${vehicleFields.map(field => `
                 <div class="line">
-                  <span>${escapeHtml(field)}</span>
+                  <span>${escapeHtml(getVehicleFieldDisplayLabel(field))}</span>
                   <strong>${escapeHtml(vehicle[field] || '')}</strong>
                 </div>
               `).join('')}
@@ -6694,99 +6846,192 @@ function saveChaptersConfig() {
         `;
       }).join('');
 
+
+      const nonconformities = data.chapters.flatMap(ch =>
+        ch.questions
+          .filter(q => q.nonconform)
+          .map(q => ({ chapter: ch.title, label: q.label, risk: q.risk, observation: q.observation }))
+      );
+
+      const nonconformitiesHtml = nonconformities.length ? `
+        <section class="chapter nonconform-summary">
+          <h3>Neconformități identificate</h3>
+          ${nonconformities.map(item => `
+            <div class="nonconform-item">
+              <strong>${escapeHtml(item.chapter)}</strong>
+              <span>${escapeHtml(item.label)}</span>
+              <em>${escapeHtml(item.risk || 'Risc neclasificat')}</em>
+              ${item.observation ? `<small>${escapeHtml(item.observation)}</small>` : ''}
+            </div>
+          `).join('')}
+        </section>
+      ` : '';
+
+      const carAlertHtml = data.carKmAlert?.exceeded ? `
+        <section class="chapter alert-report">
+          <h3>Alertă Autoturism</h3>
+          ${data.carKmAlert.items.map(item => `
+            <div class="observation nonconform-observation">
+              S-a depășit pragul Km realizați în interes personal cu <b>${Math.round(item.value).toLocaleString('ro-RO')} km</b>, reprezentând <b>${item.percent.toFixed(1).replace('.', ',')}%</b> din Km total efectuați.
+            </div>
+          `).join('')}
+        </section>
+      ` : '';
+
       const reportHtml = `
 <!DOCTYPE html>
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<title></title>
+<title>${pdfFileName}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   @page { size: A4; margin: 0; }
 
+  * { box-sizing: border-box; }
+
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Montserrat', Arial, sans-serif;
     margin: 0;
     color: #101828;
     font-size: 12px;
-    background: #f3f4f6;
+    background: #eef0f4;
   }
 
-  .page {
+  .report-preview {
     width: 190mm;
     max-width: 190mm;
-    min-height: 277mm;
     margin: 0 auto;
     background: #fff;
-    padding: 12mm;
-    box-sizing: border-box;
+    min-height: 297mm;
+    padding: 12mm 12mm 12mm;
+    box-shadow: 0 10px 34px rgba(16,24,40,.12);
   }
 
-  @media print {
-    body { background: #fff; margin: 0; }
-    .page {
-      width: 210mm;
-      max-width: 210mm;
-      min-height: 297mm;
-      margin: 0;
-      padding: 12mm;
-      box-sizing: border-box;
-    }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
   }
 
-  .top-note {
-    display: flex;
-    justify-content: space-between;
-    font-size: 9px;
-    color: #101828;
-    margin-bottom: 14px;
+  .report-table thead {
+    display: table-header-group;
   }
+
+  .report-table tbody {
+    display: table-row-group;
+  }
+
+  .report-table td {
+    padding: 0;
+    vertical-align: top;
+  }
+
+  .report-header {
+    position: relative;
+    background: #fff;
+    padding: 0 0 9mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .top-note { display: none !important; }
 
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 52mm;
+    gap: 10mm;
+    align-items: end;
+    padding-top: 17mm;
   }
 
+  .brand-score {
+    display: block;
+  }
 
-  h1 {
+  .score-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    width: 52mm;
+    margin-left: auto;
+  }
+
+  .grow-logo {
     margin: 0;
-    font-size: 30px;
-    line-height: 1;
-    letter-spacing: .2px;
+    font-size: 32px;
+    line-height: .9;
+    letter-spacing: -1.4px;
     font-weight: 900;
+    color: #111827;
   }
 
   .subtitle {
-    margin-top: -8px;
+    margin-top: -1px;
     color: #008c95;
     font-weight: 900;
-    font-size: 17px;
+    font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: .2px;
+    letter-spacing: .1px;
+    white-space: nowrap;
+  }
+
+  .company-logo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    width: 21mm;
+    max-width: 21mm;
+    height: 15mm;
+    object-fit: contain;
+    margin: 0;
   }
 
   .score {
-    min-width: 150px;
     text-align: left;
     font-weight: 900;
-    font-size: 18px;
-    line-height: 1.15;
+    line-height: .9;
+    color: #111827;
+    text-transform: uppercase;
+    letter-spacing: -1.4px;
+    width: 100%;
+  }
+
+  .score strong {
+    display: block;
+    margin: 0 0 0;
+    font-size: 30px;
+    line-height: .9;
+    letter-spacing: -1.4px;
+    color: #111827;
+    white-space: nowrap;
   }
 
   .score small {
     display: block;
+    margin-top: 1px;
+    padding: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #008c95;
     font-size: 14px;
-    margin-top: 2px;
-    font-weight: 800;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: .1px;
+    text-transform: uppercase;
+  }
+
+  .content-cell {
+    padding-top: 0;
   }
 
   .meta {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 8px;
     margin-bottom: 9px;
   }
@@ -6810,11 +7055,10 @@ function saveChaptersConfig() {
     border: 1px solid #d7dee8;
     border-radius: 9px;
     padding: 9px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     break-inside: avoid;
     page-break-inside: avoid;
   }
-
 
   .vehicle-pdf {
     margin: 8px 0 12px;
@@ -6827,7 +7071,6 @@ function saveChaptersConfig() {
     margin: 0 0 6px;
     font-size: 12px;
   }
-
 
   .chapter h3 {
     margin: 0 0 8px;
@@ -6885,6 +7128,50 @@ function saveChaptersConfig() {
     font-size: 15px;
   }
 
+  .nonconform-summary {
+    border-color: #f04438;
+    background: #fffafa;
+  }
+
+  .nonconform-item {
+    border: 1px solid #f04438;
+    border-radius: 7px;
+    background: #fff1f0;
+    padding: 6px 7px;
+    margin: 5px 0;
+    display: grid;
+    gap: 3px;
+  }
+
+  .nonconform-item span {
+    font-weight: 800;
+  }
+
+  .nonconform-item em {
+    color: #d92d20;
+    font-style: normal;
+    font-weight: 900;
+  }
+
+  .nonconform-item small {
+    color: #7a271a;
+    line-height: 1.35;
+  }
+
+  .alert-report {
+    border-color: #f04438;
+    background: #fffafa;
+  }
+
+  .recommendation-lines {
+    margin-top: 7px;
+  }
+
+  .recommendation-line {
+    height: 9mm;
+    border-bottom: 1px solid #101828;
+  }
+
   .signatures {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -6906,32 +7193,73 @@ function saveChaptersConfig() {
     font-size: 10px;
     color: #667085;
   }
+
+  @media print {
+    body {
+      background: #fff;
+      margin: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .report-preview {
+      width: auto;
+      max-width: none;
+      min-height: auto;
+      margin: 0;
+      padding: 12mm;
+      box-shadow: none;
+    }
+
+    .report-header {
+      padding: 0 0 8mm;
+    }
+
+    .company-logo {
+      width: 21mm;
+      max-width: 21mm;
+      height: 15mm;
+    }
+  }
 </style>
 </head>
 <body>
-  <div class="page">
-    <div class="top-note">
-      <span>${new Date().toLocaleString('ro-RO')}</span>
-      <span></span>
-    </div>
-
-    <div class="header">
-      <div>
-        <div class="subtitle">RAPORT AUDIT PUNCT DE LUCRU / LOCAL SALES</div>
-      </div>
-      <div class="score">
-        Scor final: ${data.score}%
-        <small>${escapeHtml(data.status)}</small>
-      </div>
-    </div>
+  <div class="report-preview">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <td>
+            <div class="report-header">
+              <div class="top-note"></div>
+              <div class="header">
+                <div class="brand-score">
+                  <div class="grow-logo">GROW-UP!</div>
+                  <div class="subtitle">RAPORT AUDIT PUNCT DE LUCRU</div>
+                </div>
+                <div class="score-logo">
+                  <img class="company-logo" src="${avveroLogoDataUri}" alt="Avvero">
+                  <div class="score">
+                    <strong>SCOR: ${data.score}%</strong>
+                    <small>${escapeHtml(data.status)}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="content-cell">
 
     <div class="meta">
-      <div class="box"><b>Audit realizat pentru</b>${escapeHtml(data.evaluated)}</div>
       <div class="box"><b>Punct de lucru</b>${escapeHtml(data.depot)}</div>
       <div class="box"><b>Perioada auditului</b>${escapeHtml(data.periodStart)} - ${escapeHtml(data.periodEnd)}</div>
       <div class="box"><b>Evaluator</b>${escapeHtml(data.evaluator)}</div>
     </div>
 
+    ${carAlertHtml}
+    ${nonconformitiesHtml}
     ${vehiclesHtml}
     ${chaptersHtml}
 
@@ -6941,9 +7269,12 @@ function saveChaptersConfig() {
         <span>Concluzie</span>
         <strong>${escapeHtml(data.status)}</strong>
       </div>
-      <div class="line">
-        <span>Recomandări</span>
-        <strong></strong>
+      <div class="observation"><b>Recomandări:</b></div>
+      <div class="recommendation-lines">
+        <div class="recommendation-line"></div>
+        <div class="recommendation-line"></div>
+        <div class="recommendation-line"></div>
+        <div class="recommendation-line"></div>
       </div>
 
       <div class="signatures">
@@ -6956,6 +7287,10 @@ function saveChaptersConfig() {
       <span></span>
       <span></span>
     </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </body>
 </html>`;
@@ -7227,8 +7562,11 @@ function saveChaptersConfig() {
     initCloudSync();
     fillColleagueSelects();
     document.getElementById('employeeDepot').addEventListener('change', updateEmployeeDetails);
-    document.getElementById('auditPeriodStart').valueAsDate = new Date();
-    document.getElementById('auditPeriodEnd').valueAsDate = new Date();
+    const auditToday = new Date();
+    const auditStartDefault = new Date(auditToday);
+    auditStartDefault.setMonth(auditStartDefault.getMonth() - 3);
+    document.getElementById('auditPeriodStart').valueAsDate = auditStartDefault;
+    document.getElementById('auditPeriodEnd').valueAsDate = auditToday;
     renderVehicles();
     renderSections();
   </script>
