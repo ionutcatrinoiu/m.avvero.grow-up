@@ -1357,6 +1357,30 @@
       }
     }
 
+
+
+    .history-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 90px 150px auto;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+
+    .history-card:last-child { border-bottom: 0; }
+
+    .history-card small { color: var(--muted); line-height: 1.35; }
+
+    @media (max-width: 980px) {
+      .history-card {
+        grid-template-columns: 1fr;
+        align-items: start;
+      }
+      .history-actions { justify-content: stretch; }
+      .history-actions .mini-btn { flex: 1; }
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 980px) {
@@ -4902,6 +4926,9 @@
           <div class="card span-4 metric"><div><span>Scor general</span><br><strong id="scoreTotal">100%</strong></div><span class="pill">Live</span></div>
           <div class="card span-4 metric"><div><span>Neconformități</span><br><strong id="issueCount">0</strong></div><span class="pill">Auto</span></div>
           <div class="card span-4 metric"><div><span>Secțiuni active</span><br><strong id="activeSections">0</strong></div><span class="pill">Filtrat</span></div>
+          <div class="card span-4 metric"><div><span>Audituri salvate</span><br><strong id="savedAuditsCount">0</strong></div><span class="pill">Cloud</span></div>
+          <div class="card span-4 metric"><div><span>Scor mediu istoric</span><br><strong id="avgHistoryScore">0%</strong></div><span class="pill">Istoric</span></div>
+          <div class="card span-4 metric"><div><span>Ultimul audit</span><br><strong id="lastAuditDate" style="font-size:18px">Nesalvat</strong></div><span class="pill" id="dashboardSyncPill">Sync</span></div>
 
           <div class="card span-8">
             <div class="section-title">
@@ -4916,7 +4943,8 @@
             </div>
             <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="goPage('audit')">Audit nou</button>
             <button class="btn" style="width:100%;margin-bottom:10px" onclick="goPage('issues')">Vezi probleme</button>
-            <button class="btn" style="width:100%" onclick="resetForm()">Resetează demo</button>
+            <button class="btn" style="width:100%;margin-bottom:10px" onclick="goPage('history')">Vezi istoric</button>
+            <button class="btn" style="width:100%" onclick="resetForm()">Resetează formularul</button>
           </div>
         </div>
       </section>
@@ -6108,12 +6136,14 @@ recalc();
     const AUDIT_STORAGE_KEY = 'audit-content-v1';
     const AUDIT_HISTORY_KEY = 'audit-history-v1';
     const AUDIT_CLOUD_DOC = 'audit-current-state';
+    const AUDIT_HISTORY_COLLECTION = 'auditHistory';
 
     let cloudDb = null;
     let cloudReady = false;
     let applyingRemoteState = false;
     let pendingCloudTimer = null;
     let lastLocalWrite = 0;
+    let historyRemoteReady = false;
 
     function canUseFirebase() {
       return typeof firebase !== 'undefined' && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId;
@@ -6123,6 +6153,8 @@ recalc();
       const pill = document.getElementById('syncStatus');
       if (!pill) return;
       pill.textContent = text;
+      const dashboardPill = document.getElementById('dashboardSyncPill');
+      if (dashboardPill) dashboardPill.textContent = text;
       pill.classList.add('show');
       if (temporary) {
         clearTimeout(pill._timer);
@@ -6154,8 +6186,13 @@ recalc();
           if (data.updatedAt && data.updatedAt <= lastLocalWrite) return;
 
           applyingRemoteState = true;
+          if (Array.isArray(data.chaptersConfig)) {
+            chapters = data.chaptersConfig;
+            localStorage.setItem('audit-chapters-v4', JSON.stringify(chapters));
+            renderSections();
+          }
           restoreAuditContentState(data.state);
-          if (Array.isArray(data.history)) {
+          if (Array.isArray(data.history) && !historyRemoteReady) {
             localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(data.history));
             renderHistory();
           }
@@ -6165,6 +6202,23 @@ recalc();
           console.warn('Eroare Firestore live sync.', error);
           setSyncStatus('Eroare live sync. Verifică Rules.', true);
         });
+
+        cloudDb.collection(AUDIT_HISTORY_COLLECTION)
+          .orderBy('savedAt', 'desc')
+          .limit(100)
+          .onSnapshot(snapshot => {
+            const history = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            historyRemoteReady = true;
+            applyingRemoteState = true;
+            localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(history));
+            renderHistory();
+            renderDashboardStats();
+            applyingRemoteState = false;
+            setSyncStatus('Istoric sincronizat', true);
+          }, error => {
+            console.warn('Istoricul cloud nu a putut fi citit.', error);
+            setSyncStatus('Istoric local activ', true);
+          });
       } catch (error) {
         console.warn('Firebase nu a putut fi inițializat.', error);
         setSyncStatus('Live sync inactiv. Verifică Authentication.', true);
@@ -6186,6 +6240,8 @@ recalc();
         cloudDb.collection('auditApp').doc(AUDIT_CLOUD_DOC).set({
           state,
           history,
+          chaptersConfig: chapters,
+          dashboard: buildDashboardSummary(),
           updatedAt: lastLocalWrite
         }, { merge: true });
         setSyncStatus('Salvat live', true);
@@ -6205,7 +6261,58 @@ recalc();
     function setAuditHistory(history) {
       localStorage.setItem(AUDIT_HISTORY_KEY, JSON.stringify(history));
       renderHistory();
+      renderDashboardStats();
       scheduleCloudSave();
+    }
+
+    function buildDashboardSummary() {
+      const history = getAuditHistory();
+      const issues = getCurrentIssues();
+      const avgScore = history.length
+        ? Math.round(history.reduce((sum, item) => sum + Number(item.score || 0), 0) / history.length)
+        : 0;
+      return {
+        savedAudits: history.length,
+        avgScore,
+        openIssues: issues.length,
+        updatedAt: Date.now()
+      };
+    }
+
+    function renderDashboardStats() {
+      const history = getAuditHistory();
+      const savedEl = document.getElementById('savedAuditsCount');
+      const avgEl = document.getElementById('avgHistoryScore');
+      const lastEl = document.getElementById('lastAuditDate');
+      if (savedEl) savedEl.innerText = history.length;
+      if (avgEl) {
+        const avg = history.length ? Math.round(history.reduce((sum, item) => sum + Number(item.score || 0), 0) / history.length) : 0;
+        avgEl.innerText = avg + '%';
+      }
+      if (lastEl) {
+        const latest = history[0]?.savedAt;
+        lastEl.innerText = latest ? new Date(latest).toLocaleDateString('ro-RO') : 'Nesalvat';
+      }
+    }
+
+    function saveAuditRecordToCloud(record) {
+      if (!cloudReady || !record || !record.id) return;
+      cloudDb.collection(AUDIT_HISTORY_COLLECTION).doc(record.id).set(record, { merge: true })
+        .then(() => setSyncStatus('Audit salvat în cloud', true))
+        .catch(error => {
+          console.warn('Auditul nu a putut fi salvat în cloud.', error);
+          setSyncStatus('Audit salvat local', true);
+        });
+    }
+
+    function deleteAuditRecordFromCloud(id) {
+      if (!cloudReady || !id) return;
+      cloudDb.collection(AUDIT_HISTORY_COLLECTION).doc(id).delete()
+        .then(() => setSyncStatus('Audit șters din cloud', true))
+        .catch(error => {
+          console.warn('Auditul nu a putut fi șters din cloud.', error);
+          setSyncStatus('Șters local', true);
+        });
     }
 
     function getCurrentIssues() {
@@ -6289,6 +6396,7 @@ recalc();
 
       const record = {
         id: 'audit_' + Date.now(),
+        version: 1,
         savedAt: new Date().toISOString(),
         depot: data.depot || 'Depozit nesetat',
         evaluator: data.evaluator || '',
@@ -6302,7 +6410,8 @@ recalc();
 
       history.unshift(record);
       setAuditHistory(history.slice(0, 100));
-      showInfoModal('Audit salvat în istoric.', 'Salvare reușită');
+      saveAuditRecordToCloud(record);
+      showInfoModal('Audit salvat în istoric și sincronizat în cloud.', 'Salvare reușită');
     }
 
     function loadAuditFromHistory(id) {
@@ -6317,6 +6426,7 @@ recalc();
       const confirmed = await showConfirmModal('Ștergi acest audit din istoric?', 'Ștergere audit');
       if (!confirmed) return;
       setAuditHistory(getAuditHistory().filter(item => item.id !== id));
+      deleteAuditRecordFromCloud(id);
     }
 
     function renderHistory() {
@@ -6333,7 +6443,7 @@ recalc();
         const riskClass = item.score >= 90 ? 'risk-low' : item.score >= 75 ? 'risk-mid' : 'risk-high';
         const date = item.savedAt ? new Date(item.savedAt).toLocaleString('ro-RO') : '';
         return `
-          <div class="issue">
+          <div class="history-card">
             <strong>${escapeHtml(item.depot)}</strong>
             <span class="${riskClass}">${item.score}%</span>
             <span>${escapeHtml(date)}</span>
@@ -6356,6 +6466,7 @@ recalc();
         checkPersonalKmAlert();
         renderIssues();
         renderHistory();
+        renderDashboardStats();
       } catch (error) {
         console.warn('Starea auditului nu a putut fi salvată.', error);
       }
@@ -6398,6 +6509,7 @@ recalc();
 function saveChaptersConfig() {
       try {
         localStorage.setItem('audit-chapters-v4', JSON.stringify(chapters));
+        scheduleCloudSave();
       } catch (error) {
         console.warn('Configurația întrebărilor nu a putut fi salvată.', error);
       }
@@ -6660,6 +6772,7 @@ function saveChaptersConfig() {
 
       checkPersonalKmAlert();
       renderIssues();
+      renderDashboardStats();
       /* legacy issue renderer disabled */
       false && (document.getElementById('issuesList').innerHTML = badRows.length ? badRows.map(r => {
         const q = r.querySelector('.question').innerText;
@@ -7323,7 +7436,7 @@ function saveChaptersConfig() {
       document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.page === id));
       if (id === 'issues') renderIssues();
       if (id === 'history') renderHistory();
-      if (id === 'dashboard') recalc();
+      if (id === 'dashboard') { recalc(); renderDashboardStats(); }
     }
 
     function resetForm() { localStorage.removeItem(AUDIT_STORAGE_KEY); location.reload(); }
@@ -7559,6 +7672,7 @@ function saveChaptersConfig() {
     setupAuditAutoSave();
     renderIssues();
     renderHistory();
+    renderDashboardStats();
     initCloudSync();
     fillColleagueSelects();
     document.getElementById('employeeDepot').addEventListener('change', updateEmployeeDetails);
