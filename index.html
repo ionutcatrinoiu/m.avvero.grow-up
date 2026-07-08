@@ -5370,7 +5370,7 @@
             <p>Imagine rapidă asupra conformității, riscurilor și acțiunilor deschise.</p>
           </div>
           <div class="actions">
-            <button class="btn primary start-audit-btn" onclick="goPage('audit')">Începe audit</button>
+            <button class="btn primary start-audit-btn" onclick="startNewAudit()">Începe audit</button>
             
           </div>
         </div>
@@ -8612,7 +8612,60 @@ function saveChaptersConfig() {
       if (id === 'dashboard') { syncDepotFilterInputs(getGlobalDepotFilter()); recalc(); renderDashboardStats(); }
     }
 
-    function resetForm() { localStorage.removeItem(AUDIT_STORAGE_KEY); loadChaptersConfig(); location.reload(); }
+    function setInputDateValue(id, date) {
+      const input = document.getElementById(id);
+      if (!input || !(date instanceof Date) || Number.isNaN(date.getTime())) return;
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      input.value = `${year}-${month}-${day}`;
+    }
+
+    function resetAuditPeriodDefaults() {
+      const today = new Date();
+      const start = new Date(today);
+      start.setMonth(start.getMonth() - 3);
+      setInputDateValue('auditPeriodStart', start);
+      setInputDateValue('auditPeriodEnd', today);
+    }
+
+    function resetAuditInputsForNewAudit() {
+      const depot = document.getElementById('employeeDepot');
+      const auditor = document.getElementById('auditorSelect');
+      if (depot) depot.value = '';
+      if (auditor) auditor.value = '';
+
+      ['activityServiceCar', 'activityFieldDelivery', 'activityStock', 'activityMount'].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) field.value = 'Da';
+      });
+
+      resetAuditPeriodDefaults();
+
+      const agentPanel = document.getElementById('depotAgentsEditorWrap');
+      if (agentPanel) agentPanel.classList.add('hidden');
+
+      vehicleCount = 1;
+      renderVehicles([{}]);
+      renderDepotAgentsEditor();
+    }
+
+    function startNewAudit() {
+      localStorage.removeItem(AUDIT_STORAGE_KEY);
+      lastLocalWrite = Date.now();
+
+      loadChaptersConfig();
+      resetAuditInputsForNewAudit();
+      renderSections();
+      applyPreviousActionMarkers();
+      recalc();
+      saveAuditContentState();
+      goPage('audit');
+      window.scrollTo(0, 0);
+      setSyncStatus('Audit nou resetat', true);
+    }
+
+    function resetForm() { startNewAudit(); }
     function saveDemo() {
       saveAuditRecord();
     }
@@ -8857,11 +8910,7 @@ function saveChaptersConfig() {
     initCloudSync();
     fillColleagueSelects();
     document.getElementById('employeeDepot').addEventListener('change', () => { updateEmployeeDetails(); applyPreviousActionMarkers(); saveAuditContentState(); });
-    const auditToday = new Date();
-    const auditStartDefault = new Date(auditToday);
-    auditStartDefault.setMonth(auditStartDefault.getMonth() - 3);
-    document.getElementById('auditPeriodStart').valueAsDate = auditStartDefault;
-    document.getElementById('auditPeriodEnd').valueAsDate = auditToday;
+    resetAuditPeriodDefaults();
     renderVehicles();
     renderSections();
   </script>
