@@ -1566,7 +1566,7 @@
       place-items: center;
       background:
         radial-gradient(circle at center, #fff 0 58%, transparent 59%),
-        conic-gradient(var(--primary) var(--dashboard-score, 0%), #edf2f7 0);
+        conic-gradient(var(--dashboard-color, var(--primary)) var(--dashboard-score, 0%), #edf2f7 0);
       box-shadow: 0 22px 46px rgba(22,93,255,.12);
     }
 
@@ -1661,6 +1661,16 @@
     .chapter-score-fill.low-score,
     .progress.low-score {
       background: var(--red) !important;
+    }
+
+    .chapter-score-fill.mid-score,
+    .progress.mid-score {
+      background: var(--orange) !important;
+    }
+
+    .chapter-score-fill.good-score,
+    .progress.good-score {
+      background: var(--primary) !important;
     }
 
     @media (max-width: 980px) {
@@ -7295,6 +7305,14 @@ applyPreviousActionMarkers();
       renderIssues(false);
     }
 
+
+    function getDashboardScoreTone(score) {
+      const value = Number(score || 0);
+      if (value < 85) return { color: 'var(--red)', className: 'low-score', riskClass: 'risk-high' };
+      if (value < 95) return { color: 'var(--orange)', className: 'mid-score', riskClass: 'risk-mid' };
+      return { color: 'var(--primary)', className: 'good-score', riskClass: 'risk-low' };
+    }
+
     function renderDashboardStats(updateOptions = true) {
       const history = getAuditHistory();
       if (updateOptions) updateDashboardDepotOptions(history);
@@ -7317,9 +7335,10 @@ applyPreviousActionMarkers();
       if (scoreEl) scoreEl.innerText = avg + '%';
       if (issuesEl) issuesEl.innerText = activeIssues.length;
       updateIssueNavigationCount(activeIssues.length);
+      const scoreTone = getDashboardScoreTone(avg);
       if (ringEl) {
         ringEl.style.setProperty('--dashboard-score', avg + '%');
-        ringEl.style.setProperty('--dashboard-ring-color', avg < 85 ? 'var(--red)' : 'var(--primary)');
+        ringEl.style.setProperty('--dashboard-color', scoreTone.color);
       }
       if (ringLabel) ringLabel.innerText = avg + '%';
       if (miniMeta) miniMeta.innerHTML = `<span>${filteredHistory.length} audituri</span><span>${activeIssues.length} acțiuni deschise</span>`;
@@ -7354,14 +7373,14 @@ applyPreviousActionMarkers();
 
       box.innerHTML = scored.map(item => {
         const score = item.score;
-        const riskClass = score >= 90 ? 'risk-low' : score >= 75 ? 'risk-mid' : 'risk-high';
+        const scoreTone = getDashboardScoreTone(score);
         return `
           <div class="chapter-score-card" title="${escapeAttr(item.title)}">
             <div class="chapter-score-head">
               <span>${escapeHtml(item.title)}</span>
-              <span class="${riskClass}">${score}%</span>
+              <span class="${scoreTone.riskClass}">${score}%</span>
             </div>
-            <div class="chapter-score-track"><div class="chapter-score-fill ${score < 85 ? 'low-score' : ''}" style="width:${score}%"></div></div>
+            <div class="chapter-score-track"><div class="chapter-score-fill ${scoreTone.className}" style="width:${score}%"></div></div>
           </div>
         `;
       }).join('');
@@ -8105,7 +8124,7 @@ function saveChaptersConfig() {
         .map(s => `
         <div style="margin-bottom:14px">
           <div style="display:flex;justify-content:space-between;font-weight:800"><span>${s.title}</span><span>${s.score}%</span></div>
-          <div class="progress-wrap"><div class="progress ${s.score < 85 ? 'low-score' : ''}" style="width:${s.score}%"></div></div>
+          <div class="progress-wrap"><div class="progress ${getDashboardScoreTone(s.score).className}" style="width:${s.score}%"></div></div>
         </div>
       `).join('');
 
