@@ -7689,12 +7689,8 @@ function fillColleagueSelects() {
       return Number.isFinite(n) ? n : 0;
     }
 
-    function checkPersonalKmAlert() {
-      const section = document.getElementById('section-car');
-      const alert = document.getElementById('carKmAlert');
-      if (!section || !alert) return;
-
-      const fields = [...section.querySelectorAll('.field-box')];
+    function getKmAlertInfoFromContainer(container) {
+      const fields = [...container.querySelectorAll('.field-box')];
       let auditedPeriodKm = 0;
       let weekend = 0;
       let after17 = 0;
@@ -7711,14 +7707,36 @@ function fillColleagueSelects() {
       const personalKm = after17 + weekend;
       const percent = auditedPeriodKm > 0 ? (personalKm / auditedPeriodKm) * 100 : 0;
       const exceeded = personalKm > 0 && auditedPeriodKm > 0 && percent > 30;
+      return { auditedPeriodKm, weekend, after17, personalKm, percent, exceeded };
+    }
 
-      alert.classList.toggle('show', exceeded);
+    function getKmAlertMessage(info) {
+      return `S-a depășit pragul Km realizați în interes personal cu ${Math.round(info.personalKm).toLocaleString('ro-RO')} km, reprezentând ${info.percent.toFixed(1).replace('.', ',')}% din Km total efectuați.`;
+    }
 
-      if (exceeded) {
-        alert.innerText = `S-a depășit pragul Km realizați în interes personal cu ${Math.round(personalKm).toLocaleString('ro-RO')} km, reprezentând ${percent.toFixed(1).replace('.', ',')}% din Km total efectuați.`;
-      } else {
-        alert.innerText = 'Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.';
+    function checkPersonalKmAlert() {
+      const section = document.getElementById('section-car');
+      if (!section) return;
+
+      const defaultMessage = 'Atenție: kilometri efectuați după ora 17:00, kilometri efectuați în weekend sau valorile adunate depășesc pragul de 30% din kilometri efectuați în perioada auditată.';
+      const panels = [...section.querySelectorAll('.vehicle-audit-panel')];
+
+      if (panels.length) {
+        panels.forEach(panel => {
+          const alert = panel.querySelector('.km-alert');
+          if (!alert) return;
+          const info = getKmAlertInfoFromContainer(panel);
+          alert.classList.toggle('show', info.exceeded);
+          alert.innerText = info.exceeded ? getKmAlertMessage(info) : defaultMessage;
+        });
+        return;
       }
+
+      const alert = document.getElementById('carKmAlert');
+      if (!alert) return;
+      const info = getKmAlertInfoFromContainer(section);
+      alert.classList.toggle('show', info.exceeded);
+      alert.innerText = info.exceeded ? getKmAlertMessage(info) : defaultMessage;
     }
 
 
@@ -8309,36 +8327,26 @@ function saveChaptersConfig() {
       const section = document.getElementById('section-car');
       if (!section) return { exceeded: false, items: [], highest: null };
 
-      const fields = [...section.querySelectorAll('.field-box')];
-      let auditedPeriodKm = 0;
-      let weekend = 0;
-      let after17 = 0;
+      const containers = [...section.querySelectorAll('.vehicle-audit-panel')];
+      const targetContainers = containers.length ? containers : [section];
+      const items = [];
 
-      fields.forEach(box => {
-        const label = (box.querySelector('label')?.innerText || '').trim();
-        const value = box.querySelector('input')?.value || '';
-        if (label === 'Kilometri efectuați în perioada auditată') auditedPeriodKm = parseAuditNumber(value);
-        if (label === 'Kilometri efectuați în weekend') weekend = parseAuditNumber(value);
-        if (label === 'Kilometri în weekend') weekend = parseAuditNumber(value);
-        if (label === 'Kilometri efectuați după ora 17:00') after17 = parseAuditNumber(value);
+      targetContainers.forEach((container, index) => {
+        const info = getKmAlertInfoFromContainer(container);
+        if (!info.exceeded) return;
+        const title = container.querySelector('.vehicle-audit-head h4')?.innerText || (containers.length ? `Autoturism ${index + 1}` : 'Autoturism');
+        items.push({
+          label: containers.length ? `${title} · Km realizați în interes personal` : 'Km realizați în interes personal',
+          value: info.personalKm,
+          referenceValue: info.auditedPeriodKm,
+          thresholdValue: info.auditedPeriodKm * 0.3,
+          exceededValue: info.personalKm - (info.auditedPeriodKm * 0.3),
+          percent: info.percent
+        });
       });
 
-      const personalKm = after17 + weekend;
-      const percent = auditedPeriodKm > 0 ? (personalKm / auditedPeriodKm) * 100 : 0;
-
-      if (personalKm > 0 && auditedPeriodKm > 0 && percent > 30) {
-        const item = {
-          label: 'Km realizați în interes personal',
-          value: personalKm,
-          referenceValue: auditedPeriodKm,
-          thresholdValue: auditedPeriodKm * 0.3,
-          exceededValue: personalKm - (auditedPeriodKm * 0.3),
-          percent
-        };
-        return { exceeded: true, items: [item], highest: item };
-      }
-
-      return { exceeded: false, items: [], highest: null };
+      const highest = items.length ? items.slice().sort((a, b) => b.percent - a.percent)[0] : null;
+      return { exceeded: items.length > 0, items, highest };
     }
 
 
