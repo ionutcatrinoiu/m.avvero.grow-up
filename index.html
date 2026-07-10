@@ -6178,7 +6178,7 @@ function getVehicleFieldHtml(field, vehicle) {
     return `
       <div>
         <label>${field}</label>
-        <select data-vehicle-field="${field}" onchange="handleVehicleDetailsChange()">
+        <select data-vehicle-field="${field}" onchange="${field === 'Șofer alternativ' ? 'handleAlternativeDriverChange()' : 'handleVehicleDetailsChange()'}">
           <option value="">${field === 'Șofer alternativ' ? 'Fără șofer alternativ' : (depot ? 'Selectează persoana' : 'Selectează mai întâi depozitul')}</option>
           ${people.map(person => `<option value="${person.name}" ${value === person.name ? 'selected' : ''}>${person.name}</option>`).join('')}
         </select>
@@ -6229,6 +6229,10 @@ function renderVehicles(values = null) {
 function handleVehicleDetailsChange() {
   const activeChapter = document.querySelector('.audit-section.active')?.id?.replace('section-', '') || 'car';
   renderSectionsPreservingContent(activeChapter);
+  saveAuditContentState();
+}
+
+function handleAlternativeDriverChange() {
   saveAuditContentState();
 }
 
@@ -6818,10 +6822,10 @@ function fillColleagueSelects() {
       renderDepotAgentsEditor();
 
       const depotVehicles = getVehiclesForDepot(document.getElementById('employeeDepot')?.value || '');
-      if (depotVehicles.length) {
-        renderVehicles(depotVehicles);
-      } else if (Array.isArray(state.vehicles)) {
+      if (Array.isArray(state.vehicles) && state.vehicles.length) {
         renderVehicles(state.vehicles);
+      } else if (depotVehicles.length) {
+        renderVehicles(depotVehicles);
       } else {
         renderVehicles();
       }
